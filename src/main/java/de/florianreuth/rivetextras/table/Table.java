@@ -390,16 +390,13 @@ public class Table<E> extends ParentContainer {
     final void renderCells(final Renderer renderer, final Container row, final Rectangle visibleArea) {
         for (Component cell : row.children()) {
             Rectangle bounds = row.childBounds(cell);
-            if (bounds.maxX() <= visibleArea.x() || bounds.x() >= visibleArea.maxX() || bounds.maxY() <= visibleArea.y() || bounds.y() >= visibleArea.maxY()) {
+            if (bounds.intersection(visibleArea).equals(Rectangle.EMPTY)) {
                 cell.updatePosition();
                 continue;
             }
-            // componentBounds is not guaranteed to clip, depending on the backend long text would overlap the next column
-            renderer.scissor(bounds.x(), bounds.y(), bounds.width(), bounds.height(), () -> {
-                renderer.translate(bounds.x(), bounds.y(), () -> {
-                    renderer.componentBounds(0, 0, bounds.width(), bounds.height(), () -> {
-                        cell.render(renderer, bounds.size(), relativizeVisibleArea(visibleArea, bounds));
-                    });
+            renderer.translate(bounds.x(), bounds.y(), () -> {
+                renderer.scissor(0, 0, bounds.width(), bounds.height(), () -> {
+                    cell.render(renderer, bounds.size(), relativizeVisibleArea(visibleArea, bounds));
                 });
             });
         }
@@ -411,18 +408,16 @@ public class Table<E> extends ParentContainer {
         renderer.scissor(0, 0, size.width(), this.headerHeight, () -> {
             renderer.translate(headerBounds.x(), headerBounds.y(), () -> {
                 this.header.render(
-                        renderer,
-                        headerBounds.size(),
-                        relativizeVisibleArea(visibleArea.intersection(new Rectangle(0, 0, size.width(), this.headerHeight)), headerBounds)
+                    renderer,
+                    headerBounds.size(),
+                    relativizeVisibleArea(visibleArea.intersection(new Rectangle(0, 0, size.width(), this.headerHeight)), headerBounds)
                 );
             });
         });
         Rectangle bodyBounds = this.childBounds(this.body);
-        renderer.scissor(bodyBounds.x(), bodyBounds.y(), bodyBounds.width(), bodyBounds.height(), () -> {
-            renderer.translate(bodyBounds.x(), bodyBounds.y(), () -> {
-                renderer.componentBounds(0, 0, bodyBounds.width(), bodyBounds.height(), () -> {
-                    this.body.render(renderer, bodyBounds.size(), relativizeVisibleArea(visibleArea, bodyBounds));
-                });
+        renderer.translate(bodyBounds.x(), bodyBounds.y(), () -> {
+            renderer.scissor(0, 0, bodyBounds.width(), bodyBounds.height(), () -> {
+                this.body.render(renderer, bodyBounds.size(), relativizeVisibleArea(visibleArea, bodyBounds));
             });
         });
     }
