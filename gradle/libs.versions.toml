@@ -1,2 +1,8 @@
+[versions]
+rivet = "0.0.3-20261018.204035-5"
+
 [libraries]
 foojay-resolver-convention-plugin = { module = "org.gradle.toolchains.foojay-resolver-convention:org.gradle.toolchains.foojay-resolver-convention.gradle.plugin", version = "1.0.0" }
+
+rivet-core = { module = "net.lenni0451.rivet:core", version.ref = "rivet" }
+rivet-backend-awt = { module = "net.lenni0451.rivet:backend-awt", version.ref = "rivet" }
