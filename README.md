@@ -16,6 +16,8 @@ dependencies {
 
 ### Table
 
+![Table](.github/images/table.png)
+
 Click a header to sort (ascending, descending, unsorted), drag a header edge to resize, double-click it to fit the content.
 Column widths are fractions of the table width, columns without a width share the remaining space. Resizing moves the edge between two columns, the table width stays the same.
 
@@ -31,6 +33,8 @@ rivet.root().add(table);
 ```
 
 ### Piano Keyboard
+
+![Piano Keyboard](.github/images/piano_keyboard.png)
 
 A piano keyboard spanning a range of MIDI notes (60 = C4, middle C). The range has to start and end on a white key.
 Keys are played by clicking, dragging over the keys plays a glissando. Notes can also be pressed programmatically, e.g. to visualize playback.
