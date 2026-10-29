@@ -22,7 +22,6 @@ import net.lenni0451.rivet.Rivet;
 import net.lenni0451.rivet.backend.awt.AWTApplication;
 import net.lenni0451.rivet.backend.awt.AWTAssetLoader;
 import net.lenni0451.rivet.backend.awt.text.AWTFont;
-import net.lenni0451.rivet.backend.text.Font;
 import net.lenni0451.rivet.component.container.Button;
 import net.lenni0451.rivet.component.container.Container;
 import net.lenni0451.rivet.component.container.PaddedContainer;
@@ -37,6 +36,7 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Synthesizer;
 import javax.swing.Timer;
+import java.awt.Font;
 import java.util.stream.Collectors;
 
 public class PianoKeyboardDemo extends AWTApplication {
@@ -54,45 +54,49 @@ public class PianoKeyboardDemo extends AWTApplication {
     }
 
     @Override
-    protected Font createFont(final AWTAssetLoader assetLoader) {
-        return new AWTFont(new java.awt.Font(java.awt.Font.SANS_SERIF, java.awt.Font.PLAIN, 16));
+    protected AWTFont createFont(final AWTAssetLoader assetLoader) {
+        return new AWTFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
     }
 
     @Override
     protected void initRivet(final Rivet rivet) {
         // Called from the super constructor, instance fields of this class are not initialized yet
-        PianoKeyboard piano = new PianoKeyboard(48, 84);
-        Label status = new Label("");
+        final PianoKeyboard piano = new PianoKeyboard(48, 84);
+        final Label status = new Label("");
 
-        MidiChannel channel = openMidiChannel();
+        final MidiChannel channel = openMidiChannel();
         if (channel != null) {
             piano.notePressListener().add(note -> channel.noteOn(note, 90));
             piano.noteReleaseListener().add(channel::noteOff);
         }
-        Runnable updateStatus = () -> status.text((channel == null ? "No MIDI synthesizer available - " : "") + "Pressed: "
-                + (piano.pressedNotes().isEmpty() ? "nothing" : piano.pressedNotes().stream().sorted().map(PianoKeyboard::noteName).collect(Collectors.joining(", "))));
+        final Runnable updateStatus = () -> status.text((channel == null ? "No MIDI synthesizer available - " : "") + "Pressed: " + (piano.pressedNotes().isEmpty() ? "nothing" : piano.pressedNotes().stream().sorted().map(PianoKeyboard::noteName).collect(Collectors.joining(", "))));
         piano.notePressListener().add(note -> updateStatus.run());
         piano.noteReleaseListener().add(note -> updateStatus.run());
         updateStatus.run();
 
         // Swing timers run on the event dispatch thread, the same thread the mouse input is handled on
-        Timer melody = new Timer(NOTE_DURATION, null);
-        int[] position = {0};
+        final Timer melody = new Timer(NOTE_DURATION, null);
+        final int[] position = {0};
         melody.addActionListener(event -> {
-            if (position[0] > 0 && MELODY[position[0] - 1] >= 0) piano.release(MELODY[position[0] - 1]);
+            if (position[0] > 0 && MELODY[position[0] - 1] >= 0) {
+                piano.release(MELODY[position[0] - 1]);
+            }
             if (position[0] >= MELODY.length) {
                 melody.stop();
                 return;
             }
-            if (MELODY[position[0]] >= 0) piano.press(MELODY[position[0]]);
+            if (MELODY[position[0]] >= 0) {
+                piano.press(MELODY[position[0]]);
+            }
             position[0]++;
         });
 
-        Container toolbar = new Container(new HorizontalListLayout(5, true));
+        final Container toolbar = new Container(new HorizontalListLayout(5, true));
         toolbar.add(new Button("Play melody", () -> {
-            if (melody.isRunning()) return;
-            position[0] = 0;
-            melody.start();
+            if (!melody.isRunning()) {
+                position[0] = 0;
+                melody.start();
+            }
         }));
         toolbar.add(new Button("Play C major chord", () -> piano.press(60).press(64).press(67)));
         toolbar.add(new Button("Release all", () -> {
@@ -101,7 +105,7 @@ public class PianoKeyboardDemo extends AWTApplication {
         }));
         toolbar.add(new Button("Toggle labels", () -> piano.showLabels(!piano.showLabels().get())));
 
-        Container content = new Container(new DockLayout(5));
+        final Container content = new Container(new DockLayout(5));
         content.add(toolbar, c -> c.layoutOptions(DockPosition.TOP));
         content.add(status, s -> s.horizontalOrigin(TextOrigin.Horizontal.LOGICAL_LEFT).layoutOptions(DockPosition.BOTTOM));
         content.add(piano, p -> p.layoutOptions(DockPosition.CENTER));
@@ -110,10 +114,10 @@ public class PianoKeyboardDemo extends AWTApplication {
 
     private static MidiChannel openMidiChannel() {
         try {
-            Synthesizer synthesizer = MidiSystem.getSynthesizer();
+            final Synthesizer synthesizer = MidiSystem.getSynthesizer();
             synthesizer.open();
             return synthesizer.getChannels()[0];
-        } catch (MidiUnavailableException e) {
+        } catch (final MidiUnavailableException e) {
             return null;
         }
     }

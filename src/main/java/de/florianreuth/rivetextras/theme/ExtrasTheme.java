@@ -33,10 +33,10 @@ public final class ExtrasTheme {
 
     static {
         try {
-            for (Class<?> declaredClass : ExtrasTheme.class.getDeclaredClasses()) {
+            for (final Class<?> declaredClass : ExtrasTheme.class.getDeclaredClasses()) {
                 Class.forName(declaredClass.getName(), true, declaredClass.getClassLoader());
             }
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             throw new ExceptionInInitializerError("Failed to initialize theme keys: " + t.getMessage());
         }
     }
@@ -54,7 +54,7 @@ public final class ExtrasTheme {
     public static class Table {
         // Geometry & Layout
         public static final ThemeKey<Padding> CELL_PADDING = Theme.register("table.cell_padding", Padding.class, r -> {
-            float textHeight = r.backend().font().height();
+            final float textHeight = r.backend().font().height();
             return new Padding(roundMin(textHeight / 3F, 0), roundMin(textHeight / 10F, 0));
         });
         public static final ThemeKey<Float> GRID_WIDTH = Theme.register("table.grid_width", Float.class, r -> roundMin(r.backend().font().height() / 25F, 1));

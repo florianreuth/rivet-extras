@@ -34,7 +34,7 @@ final class TableRow<E> extends Container {
         super(new TableRowLayout(table));
         this.table = table;
         this.item = item;
-        for (TableColumn<E> column : table.columns()) {
+        for (final TableColumn<E> column : table.columns()) {
             this.add(column.cellFactory().apply(item));
         }
     }
@@ -71,7 +71,7 @@ final class TableRow<E> extends Container {
 
     @Override
     protected void renderInternal(final Renderer renderer, final Size size, final Rectangle visibleArea) {
-        Color background;
+        final Color background;
         if (this.hovered) {
             background = this.table.rowHoverBackgroundColor().value();
         } else if (this.table.viewIndex(this.item) % 2 == 1) {

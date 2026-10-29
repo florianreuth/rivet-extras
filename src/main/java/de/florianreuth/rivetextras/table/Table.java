@@ -113,7 +113,7 @@ public class Table<E> extends ParentContainer {
         this.sortColumn.updateListener().add(column -> this.onSortChanged());
         this.sortOrder.updateListener().add(order -> this.onSortChanged());
 
-        for (TableColumn<E> column : this.columns) {
+        for (final TableColumn<E> column : this.columns) {
             column.width().updateListener().add(width -> this.requestLayoutRecalculation());
         }
         this.cellPadding.changeListener().add(padding -> this.requestLayoutRecalculation());
@@ -146,13 +146,13 @@ public class Table<E> extends ParentContainer {
      * @return the rows in display order, rebuilt when the data or the sorting changed
      */
     public final List<E> view() {
-        List<E> data = this.dataSupplier.get();
+        final List<E> data = this.dataSupplier.get();
         if (this.viewDirty || !isSame(data, this.lastData)) {
             this.lastData = new ArrayList<>(data);
-            List<E> view = new ArrayList<>(data);
-            TableColumn<E> sortColumn = this.sortColumn.get();
+            final List<E> view = new ArrayList<>(data);
+            final TableColumn<E> sortColumn = this.sortColumn.get();
             if (sortColumn != null) {
-                Comparator<E> comparator = sortColumn.comparator();
+                final Comparator<E> comparator = sortColumn.comparator();
                 view.sort(this.sortOrder.get() == SortOrder.ASCENDING ? comparator : comparator.reversed());
             }
             this.view = Collections.unmodifiableList(view);
@@ -167,8 +167,6 @@ public class Table<E> extends ParentContainer {
 
     /**
      * @param column the column to sort by, {@code null} restores the data order
-     * @param order  the sort order
-     * @return this table
      * @throws IllegalArgumentException if the column is not part of this table or not sortable
      */
     public final Table<E> sort(final TableColumn<E> column, final SortOrder order) {
@@ -184,8 +182,6 @@ public class Table<E> extends ParentContainer {
 
     /**
      * Re-applies the sorting, required after sort relevant values changed without the data list changing.
-     *
-     * @return this table
      */
     public final Table<E> refresh() {
         this.viewDirty = true;
@@ -194,9 +190,6 @@ public class Table<E> extends ParentContainer {
 
     /**
      * Recreates the cells of a row, required after displayed values of the row changed.
-     *
-     * @param item the row to recreate
-     * @return this table
      */
     public final Table<E> refresh(final E item) {
         this.rows.recreate(item);
@@ -207,16 +200,15 @@ public class Table<E> extends ParentContainer {
      * Resizes the column to fit its header and all cells, taking the space from the next resizable column.
      *
      * @param column the column to resize, has no effect if it has no resizable column to its right
-     * @return this table
      * @throws IllegalArgumentException if the column is not part of this table
      */
     public final Table<E> autoSizeColumn(final TableColumn<E> column) {
-        int index = this.columns.indexOf(column);
+        final int index = this.columns.indexOf(column);
         if (index < 0) {
             throw new IllegalArgumentException("Column '" + column.title() + "' is not part of this table");
         }
         float width = idealWidth(this.header.children().get(index));
-        for (Component row : this.rows.children()) {
+        for (final Component row : this.rows.children()) {
             width = Math.max(width, idealWidth(((TableRow<?>) row).children().get(index)));
         }
         this.resizeColumn(index, this.columnWidths(this.headerWidth), width + this.cellPadding.value().horizontal());
@@ -258,9 +250,14 @@ public class Table<E> extends ParentContainer {
      * @return the column giving or taking the width, or -1 if the edge can not be dragged
      */
     final int resizeNeighbour(final int index) {
-        if (!this.columns.get(index).resizable()) return -1;
+        if (!this.columns.get(index).resizable()) {
+            return -1;
+        }
+
         for (int i = index + 1; i < this.columns.size(); i++) {
-            if (this.columns.get(i).resizable()) return i;
+            if (this.columns.get(i).resizable()) {
+                return i;
+            }
         }
         return -1;
     }
@@ -273,18 +270,23 @@ public class Table<E> extends ParentContainer {
      * @param width  the requested pixel width, clamped to the minimum widths of both columns
      */
     final void resizeColumn(final int index, final float[] widths, final float width) {
-        int neighbour = this.resizeNeighbour(index);
-        if (neighbour < 0) return;
-        float pairWidth = widths[index] + widths[neighbour];
-        float minWidth = this.minColumnWidth(this.columns.get(index));
-        float maxWidth = pairWidth - this.minColumnWidth(this.columns.get(neighbour));
-        if (maxWidth < minWidth) return;
+        final int neighbour = this.resizeNeighbour(index);
+        if (neighbour < 0) {
+            return;
+        }
 
-        float[] newWidths = widths.clone();
+        final float pairWidth = widths[index] + widths[neighbour];
+        final float minWidth = this.minColumnWidth(this.columns.get(index));
+        final float maxWidth = pairWidth - this.minColumnWidth(this.columns.get(neighbour));
+        if (maxWidth < minWidth) {
+            return;
+        }
+
+        final float[] newWidths = widths.clone();
         newWidths[index] = MathUtils.clamp(width, minWidth, maxWidth);
         newWidths[neighbour] = pairWidth - newWidths[index];
         float totalWidth = 0;
-        for (float newWidth : newWidths) {
+        for (final float newWidth : newWidths) {
             totalWidth += newWidth;
         }
         // All columns get a fixed fraction, unset columns would otherwise redistribute the remaining space and shift the other edges
@@ -297,8 +299,8 @@ public class Table<E> extends ParentContainer {
      * @return the share of the row width of every column in column order, sums up to 1
      */
     final float[] columnFractions() {
-        int count = this.columns.size();
-        float[] fractions = new float[count];
+        final int count = this.columns.size();
+        final float[] fractions = new float[count];
         float setFraction = 0;
         int unsetCount = 0;
         for (int i = 0; i < count; i++) {
@@ -309,10 +311,12 @@ public class Table<E> extends ParentContainer {
                 setFraction += fractions[i];
             }
         }
-        float unsetFraction = unsetCount == 0 ? 0 : Math.max(0, 1 - setFraction) / unsetCount;
+        final float unsetFraction = unsetCount == 0 ? 0 : Math.max(0, 1 - setFraction) / unsetCount;
         float totalFraction = 0;
         for (int i = 0; i < count; i++) {
-            if (fractions[i] < 0) fractions[i] = unsetFraction;
+            if (fractions[i] < 0) {
+                fractions[i] = unsetFraction;
+            }
             totalFraction += fractions[i];
         }
         if (totalFraction <= 0) {
@@ -331,21 +335,23 @@ public class Table<E> extends ParentContainer {
      * @return the pixel width of every column in column order, exceeds the available width only if the minimum widths do not fit
      */
     final float[] columnWidths(final float availableWidth) {
-        int count = this.columns.size();
-        float[] fractions = this.columnFractions();
+        final int count = this.columns.size();
+        final float[] fractions = this.columnFractions();
 
         // Columns below their minimum are fixed and the rest is redistributed
-        float[] widths = new float[count];
-        boolean[] fixed = new boolean[count];
+        final float[] widths = new float[count];
+        final boolean[] fixed = new boolean[count];
         float remainingWidth = availableWidth;
         float remainingFraction = 1;
         boolean changed = true;
         while (changed) {
             changed = false;
             for (int i = 0; i < count; i++) {
-                if (fixed[i]) continue;
-                float minWidth = this.minColumnWidth(this.columns.get(i));
-                float width = remainingFraction <= 0 ? 0 : remainingWidth * fractions[i] / remainingFraction;
+                if (fixed[i]) {
+                    continue;
+                }
+                final float minWidth = this.minColumnWidth(this.columns.get(i));
+                final float width = remainingFraction <= 0 ? 0 : remainingWidth * fractions[i] / remainingFraction;
                 if (width < minWidth) {
                     widths[i] = minWidth;
                     fixed[i] = true;
@@ -365,11 +371,14 @@ public class Table<E> extends ParentContainer {
     }
 
     final void renderGrid(final Renderer renderer, final Size size, final boolean bottomLine) {
-        float gridWidth = this.gridWidth.value();
-        if (gridWidth <= 0) return;
-        Color color = this.gridColor.value();
+        final float gridWidth = this.gridWidth.value();
+        if (gridWidth <= 0) {
+            return;
+        }
+
+        final Color color = this.gridColor.value();
         float x = 0;
-        for (float width : this.columnWidths(size.width())) {
+        for (final float width : this.columnWidths(size.width())) {
             x += width;
             if (x < size.width()) {
                 renderer.fillRect(x - gridWidth / 2F, 0, gridWidth, size.height(), color);
@@ -383,13 +392,11 @@ public class Table<E> extends ParentContainer {
     /**
      * Renders the cells of a row or the header, each clipped to its column.
      *
-     * @param renderer    the renderer
-     * @param row         the container holding one cell per column
-     * @param visibleArea the visible area of the row
+     * @param row the container holding one cell per column
      */
     final void renderCells(final Renderer renderer, final Container row, final Rectangle visibleArea) {
-        for (Component cell : row.children()) {
-            Rectangle bounds = row.childBounds(cell);
+        for (final Component cell : row.children()) {
+            final Rectangle bounds = row.childBounds(cell);
             if (bounds.intersection(visibleArea).equals(Rectangle.EMPTY)) {
                 cell.updatePosition();
                 continue;
@@ -404,17 +411,13 @@ public class Table<E> extends ParentContainer {
 
     @Override
     protected void renderInternal(final Renderer renderer, final Size size, final Rectangle visibleArea) {
-        Rectangle headerBounds = this.childBounds(this.header);
+        final Rectangle headerBounds = this.childBounds(this.header);
         renderer.scissor(0, 0, size.width(), this.headerHeight, () -> {
             renderer.translate(headerBounds.x(), headerBounds.y(), () -> {
-                this.header.render(
-                    renderer,
-                    headerBounds.size(),
-                    relativizeVisibleArea(visibleArea.intersection(new Rectangle(0, 0, size.width(), this.headerHeight)), headerBounds)
-                );
+                this.header.render(renderer, headerBounds.size(), relativizeVisibleArea(visibleArea.intersection(new Rectangle(0, 0, size.width(), this.headerHeight)), headerBounds));
             });
         });
-        Rectangle bodyBounds = this.childBounds(this.body);
+        final Rectangle bodyBounds = this.childBounds(this.body);
         renderer.translate(bodyBounds.x(), bodyBounds.y(), () -> {
             renderer.scissor(0, 0, bodyBounds.width(), bodyBounds.height(), () -> {
                 this.body.render(renderer, bodyBounds.size(), relativizeVisibleArea(visibleArea, bodyBounds));
@@ -424,21 +427,21 @@ public class Table<E> extends ParentContainer {
 
     @Override
     public Size computeIdealSize(final Size constraints) {
-        Size headerSize = this.header.computeIdealSize(constraints).clamp(this.header);
-        Size bodySize = this.body.computeIdealSize(constraints.minus(0, headerSize.height())).clamp(this.body);
+        final Size headerSize = this.header.computeIdealSize(constraints).clamp(this.header);
+        final Size bodySize = this.body.computeIdealSize(constraints.minus(0, headerSize.height())).clamp(this.body);
         // The rows only report their minimum widths so they never overflow the body, parents sizing to the ideal width need the width the content fits into
-        float[] fractions = this.columnFractions();
+        final float[] fractions = this.columnFractions();
         float fitWidth = this.fitWidth(this.header, fractions);
-        for (Component row : this.rows.children()) {
+        for (final Component row : this.rows.children()) {
             fitWidth = Math.max(fitWidth, this.fitWidth((Container) row, fractions));
         }
         return new Size(Math.max(fitWidth, Math.max(headerSize.width(), bodySize.width())), headerSize.height() + bodySize.height());
     }
 
     private float fitWidth(final Container row, final float[] fractions) {
-        float horizontalPadding = this.cellPadding.value().horizontal();
+        final float horizontalPadding = this.cellPadding.value().horizontal();
         float fitWidth = 0;
-        List<Component> cells = row.children();
+        final List<Component> cells = row.children();
         for (int i = 0; i < cells.size(); i++) {
             if (fractions[i] > 0) {
                 fitWidth = Math.max(fitWidth, (idealWidth(cells.get(i)) + horizontalPadding) / fractions[i]);
@@ -473,7 +476,7 @@ public class Table<E> extends ParentContainer {
         if (component == this.header) {
             return new Rectangle(-this.body.scrollX().get(), 0, this.headerWidth, this.headerHeight);
         } else if (component == this.body) {
-            Size size = this.relativeBounds().size();
+            final Size size = this.relativeBounds().size();
             return new Rectangle(0, this.headerHeight, size.width(), size.height() - this.headerHeight);
         }
         return Rectangle.EMPTY;
@@ -532,9 +535,14 @@ public class Table<E> extends ParentContainer {
     }
 
     private static <E> boolean isSame(final List<E> a, final List<E> b) {
-        if (a.size() != b.size()) return false;
+        if (a.size() != b.size()) {
+            return false;
+        }
+
         for (int i = 0; i < a.size(); i++) {
-            if (a.get(i) != b.get(i)) return false;
+            if (a.get(i) != b.get(i)) {
+                return false;
+            }
         }
         return true;
     }

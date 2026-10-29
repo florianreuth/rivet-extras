@@ -49,12 +49,12 @@ final class TableHeader<E> extends Container {
     TableHeader(final Table<E> table) {
         super(new TableRowLayout(table));
         this.table = table;
-        for (TableColumn<E> column : table.columns()) {
-            Arrow sortArrow = new Arrow();
+        for (final TableColumn<E> column : table.columns()) {
+            final Arrow sortArrow = new Arrow();
             sortArrow.layoutOptions(DockPosition.RIGHT);
             this.sortArrows.add(sortArrow);
 
-            Container cell = new Container(DockLayout.DEFAULT);
+            final Container cell = new Container(DockLayout.DEFAULT);
             // The arrow has to be added first, the centered label takes all remaining space
             cell.add(sortArrow);
             cell.add(new Label(column.title()), label -> label.horizontalOrigin(TextOrigin.Horizontal.LOGICAL_LEFT).layoutOptions(DockPosition.CENTER));
@@ -64,10 +64,10 @@ final class TableHeader<E> extends Container {
     }
 
     void updateSortIndicators() {
-        List<TableColumn<E>> columns = this.table.columns();
+        final List<TableColumn<E>> columns = this.table.columns();
         for (int i = 0; i < columns.size(); i++) {
-            Arrow sortArrow = this.sortArrows.get(i);
-            boolean sorted = this.table.sortColumn().get() == columns.get(i);
+            final Arrow sortArrow = this.sortArrows.get(i);
+            final boolean sorted = this.table.sortColumn().get() == columns.get(i);
             sortArrow.maxSize(sorted ? Size.INFINITE : new Size(0, Float.MAX_VALUE));
             sortArrow.progress(this.table.sortOrder().get() == SortOrder.ASCENDING ? 1 : 0);
         }
@@ -95,10 +95,10 @@ final class TableHeader<E> extends Container {
     @Override
     protected boolean onMouseDownInternal(final MouseButtonEvent event, final Size size) {
         if (event.button().equals(MouseButton.LEFT)) {
-            float[] widths = this.table.columnWidths(size.width());
-            int handle = this.handleAt(event.x(), widths);
+            final float[] widths = this.table.columnWidths(size.width());
+            final int handle = this.handleAt(event.x(), widths);
             if (handle >= 0) {
-                long now = System.currentTimeMillis();
+                final long now = System.currentTimeMillis();
                 if (handle == this.lastHandleClickColumn && now - this.lastHandleClick < this.table.doubleClickTime().value()) {
                     this.table.autoSizeColumn(this.table.columns().get(handle));
                     this.lastHandleClickColumn = -1;
@@ -110,7 +110,7 @@ final class TableHeader<E> extends Container {
                     this.lastHandleClick = now;
                 }
             } else {
-                int column = this.columnAt(event.x(), widths);
+                final int column = this.columnAt(event.x(), widths);
                 if (column >= 0 && this.table.columns().get(column).sortable()) {
                     this.pressedColumn = column;
                 }
@@ -138,7 +138,7 @@ final class TableHeader<E> extends Container {
             this.lastHandleClickColumn = -1;
             return true;
         }
-        float[] widths = this.table.columnWidths(size.width());
+        final float[] widths = this.table.columnWidths(size.width());
         this.hoveredHandle = this.handleAt(event.x(), widths);
         this.hoveredColumn = this.hoveredHandle >= 0 ? -1 : this.columnAt(event.x(), widths);
         return true;
@@ -146,7 +146,7 @@ final class TableHeader<E> extends Container {
 
     @Override
     protected void renderInternal(final Renderer renderer, final Size size, final Rectangle visibleArea) {
-        float[] widths = this.table.columnWidths(size.width());
+        final float[] widths = this.table.columnWidths(size.width());
         renderer.fillRect(0, 0, size.width(), size.height(), this.table.headerBackgroundColor().value());
         if (this.resizingColumn < 0 && this.hoveredColumn >= 0 && this.table.columns().get(this.hoveredColumn).sortable()) {
             renderer.fillRect(this.columnX(this.hoveredColumn, widths), 0, widths[this.hoveredColumn], size.height(), this.table.headerHoverBackgroundColor().value());
@@ -154,10 +154,10 @@ final class TableHeader<E> extends Container {
         this.table.renderCells(renderer, this, visibleArea);
         this.table.renderGrid(renderer, size, true);
 
-        int handle = this.resizingColumn >= 0 ? this.resizingColumn : this.hoveredHandle;
+        final int handle = this.resizingColumn >= 0 ? this.resizingColumn : this.hoveredHandle;
         if (handle >= 0) {
-            float handleWidth = this.table.resizeHandleWidth().value();
-            float handleX = this.columnX(handle, widths) + widths[handle];
+            final float handleWidth = this.table.resizeHandleWidth().value();
+            final float handleX = this.columnX(handle, widths) + widths[handle];
             renderer.fillRect(handleX - handleWidth / 2F, 0, handleWidth, size.height(), this.table.resizeHandleColor().value());
         }
     }
@@ -180,18 +180,23 @@ final class TableHeader<E> extends Container {
     private int columnAt(final float x, final float[] widths) {
         float columnX = 0;
         for (int i = 0; i < widths.length; i++) {
-            if (x >= columnX && x < columnX + widths[i]) return i;
+            if (x >= columnX && x < columnX + widths[i]) {
+                return i;
+            }
+
             columnX += widths[i];
         }
         return -1;
     }
 
     private int handleAt(final float x, final float[] widths) {
-        float halfHandleWidth = this.table.resizeHandleWidth().value() / 2F;
+        final float halfHandleWidth = this.table.resizeHandleWidth().value() / 2F;
         float columnX = 0;
         for (int i = 0; i < widths.length; i++) {
             columnX += widths[i];
-            if (this.table.resizeNeighbour(i) >= 0 && Math.abs(x - columnX) <= halfHandleWidth) return i;
+            if (this.table.resizeNeighbour(i) >= 0 && Math.abs(x - columnX) <= halfHandleWidth) {
+                return i;
+            }
         }
         return -1;
     }

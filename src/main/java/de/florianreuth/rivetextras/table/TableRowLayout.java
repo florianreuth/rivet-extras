@@ -33,17 +33,17 @@ record TableRowLayout(Table<?> table) implements Layout {
 
     @Override
     public Size computeIdealSize(final Size constraints, final Collection<Component> components) {
-        float[] widths = this.table.columnWidths(0);
-        float layoutWidth = this.table.layoutWidth();
+        final float[] widths = this.table.columnWidths(0);
+        final float layoutWidth = this.table.layoutWidth();
         // The minimum widths would make wrapping cells very tall, before the first layout the cells are measured unconstrained
-        float[] cellWidths = layoutWidth > 0 ? this.table.columnWidths(layoutWidth) : null;
-        Padding padding = this.table.cellPadding().value();
+        final float[] cellWidths = layoutWidth > 0 ? this.table.columnWidths(layoutWidth) : null;
+        final Padding padding = this.table.cellPadding().value();
         float width = 0;
         float height = 0;
         int column = 0;
-        for (Component component : components) {
-            float cellWidth = cellWidths == null ? Float.MAX_VALUE : cellWidths[column] - padding.horizontal();
-            Size idealSize = component.computeIdealSize(new Size(cellWidth, constraints.height()));
+        for (final Component component : components) {
+            final float cellWidth = cellWidths == null ? Float.MAX_VALUE : cellWidths[column] - padding.horizontal();
+            final Size idealSize = component.computeIdealSize(new Size(cellWidth, constraints.height()));
             height = Math.max(height, this.heightOf(component, idealSize));
             width += widths[column];
             column++;
@@ -53,13 +53,13 @@ record TableRowLayout(Table<?> table) implements Layout {
 
     @Override
     public void layoutComponents(final Size containerSize, final Collection<Component> components, final BiConsumer<Component, Rectangle> setBounds) {
-        float[] widths = this.table.columnWidths(containerSize.width());
-        Padding padding = this.table.cellPadding().value();
+        final float[] widths = this.table.columnWidths(containerSize.width());
+        final Padding padding = this.table.cellPadding().value();
         float x = 0;
         int column = 0;
-        for (Component component : components) {
-            float width = this.widthOf(component, widths[column] - padding.horizontal());
-            float height = this.heightOf(component, containerSize.height() - padding.vertical());
+        for (final Component component : components) {
+            final float width = this.widthOf(component, widths[column] - padding.horizontal());
+            final float height = this.heightOf(component, containerSize.height() - padding.vertical());
             setBounds.accept(component, new Rectangle(x + padding.left(), padding.top(), width, height));
             x += widths[column];
             column++;

@@ -69,7 +69,6 @@ public class TableColumn<E> {
 
     /**
      * @param width the width as fraction of the table width (0.2 = 20%), a negative value shares the remaining space
-     * @return this column
      */
     public final TableColumn<E> width(final float width) {
         this.width.set(width);
@@ -82,7 +81,6 @@ public class TableColumn<E> {
 
     /**
      * @param minWidth the minimum width in pixels, a negative value uses the theme default
-     * @return this column
      */
     public final TableColumn<E> minWidth(final float minWidth) {
         this.minWidth = minWidth;
@@ -107,7 +105,6 @@ public class TableColumn<E> {
 
     /**
      * @param comparator the comparator used for ascending sorting, {@code null} disables sorting
-     * @return this column
      */
     public final TableColumn<E> comparator(final Comparator<E> comparator) {
         this.comparator = comparator;

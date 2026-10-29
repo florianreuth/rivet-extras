@@ -122,7 +122,7 @@ public class PianoKeyboard extends Component {
         this.lastNote = lastNote;
         this.whiteKeyCount = this.whiteIndex(lastNote) + 1;
         for (int note = firstNote; note <= lastNote; note++) {
-            int key = note;
+            final int key = note;
             this.pressProgress.add(new Transition<>(this, () -> this.pressedNotes.contains(key) ? 1F : 0F, this.pressAnimation::value, Interpolator.FLOAT));
         }
     }
@@ -173,10 +173,6 @@ public class PianoKeyboard extends Component {
     }
 
     /**
-     * Presses a key, calls the press listeners if it was not pressed already.
-     *
-     * @param note the MIDI note
-     * @return this keyboard
      * @throws IllegalArgumentException if the note is outside the keyboard range
      */
     public final PianoKeyboard press(final int note) {
@@ -188,10 +184,6 @@ public class PianoKeyboard extends Component {
     }
 
     /**
-     * Releases a key, calls the release listeners if it was pressed.
-     *
-     * @param note the MIDI note
-     * @return this keyboard
      * @throws IllegalArgumentException if the note is outside the keyboard range
      */
     public final PianoKeyboard release(final int note) {
@@ -203,7 +195,7 @@ public class PianoKeyboard extends Component {
     }
 
     public final PianoKeyboard releaseAll() {
-        for (int note : Set.copyOf(this.pressedNotes)) {
+        for (final int note : Set.copyOf(this.pressedNotes)) {
             this.release(note);
         }
         return this;
@@ -244,9 +236,8 @@ public class PianoKeyboard extends Component {
 
     @Override
     protected boolean onMouseMoveInternal(final MouseMoveEvent event, final Size size) {
-        int note = this.noteAt(event.x(), event.y(), size);
+        final int note = this.noteAt(event.x(), event.y(), size);
         this.hoveredNote = note;
-        // Dragging over the keys plays a glissando
         if (this.dragging) {
             this.moveMouseNote(note);
         }
@@ -254,10 +245,17 @@ public class PianoKeyboard extends Component {
     }
 
     private void moveMouseNote(final int note) {
-        if (note == this.mouseNote) return;
-        if (this.mouseNote >= 0) this.release(this.mouseNote);
+        if (note == this.mouseNote) {
+            return;
+        }
+
+        if (this.mouseNote >= 0) {
+            this.release(this.mouseNote);
+        }
         this.mouseNote = note;
-        if (note >= 0) this.press(note);
+        if (note >= 0) {
+            this.press(note);
+        }
     }
 
     private void resetMouseState() {
@@ -268,56 +266,59 @@ public class PianoKeyboard extends Component {
 
     @Override
     protected void renderInternal(final Renderer renderer, final Size size, final Rectangle visibleArea) {
-        float whiteWidth = size.width() / this.whiteKeyCount;
-        float blackWidth = whiteWidth * this.blackKeyWidthRatio.value();
-        float blackHeight = size.height() * this.blackKeyHeightRatio.value();
-        float pressDepth = size.height() * this.pressDepthRatio.value();
-        float whiteFaceHeight = size.height() * this.faceHeightRatio.value();
-        float blackFaceHeight = blackHeight * this.faceHeightRatio.value();
-        float cornerRadius = this.cornerRadius.value();
-        float separatorWidth = this.separatorWidth.value();
-        float faceShade = this.faceShade.value();
-        Color shadowColor = this.shadowColor.value();
-        boolean showLabels = this.showLabels.get();
-        if (showLabels) this.updateLabelStyle();
+        final float whiteWidth = size.width() / this.whiteKeyCount;
+        final float blackWidth = whiteWidth * this.blackKeyWidthRatio.value();
+        final float blackHeight = size.height() * this.blackKeyHeightRatio.value();
+        final float pressDepth = size.height() * this.pressDepthRatio.value();
+        final float whiteFaceHeight = size.height() * this.faceHeightRatio.value();
+        final float blackFaceHeight = blackHeight * this.faceHeightRatio.value();
+        final float cornerRadius = this.cornerRadius.value();
+        final float separatorWidth = this.separatorWidth.value();
+        final float faceShade = this.faceShade.value();
+        final Color shadowColor = this.shadowColor.value();
+        final boolean showLabels = this.showLabels.get();
+        if (showLabels) {
+            this.updateLabelStyle();
+        }
 
         for (int note = this.firstNote; note <= this.lastNote; note++) {
-            if (isBlackKey(note)) continue;
-            float x = this.whiteIndex(note) * whiteWidth;
-            float progress = this.pressProgress(note);
-            Color color = this.keyColor(note, progress, this.whiteKeyColor, this.whiteKeyHoverColor, this.whiteKeyPressedColor);
-            // The front face gets shorter while the key tilts down
-            float faceY = Math.min(size.height() - whiteFaceHeight + pressDepth * progress, size.height());
+            if (isBlackKey(note)) {
+                continue;
+            }
+            final float x = this.whiteIndex(note) * whiteWidth;
+            final float progress = this.pressProgress(note);
+            final Color color = this.keyColor(note, progress, this.whiteKeyColor, this.whiteKeyHoverColor, this.whiteKeyPressedColor);
+            final float faceY = Math.min(size.height() - whiteFaceHeight + pressDepth * progress, size.height());
             renderer.fillRect(x, 0, whiteWidth, faceY, color);
             renderer.fillRoundedRect(x, faceY, whiteWidth, size.height() - faceY, 0, cornerRadius, cornerRadius, 0, Color.interpolate(faceShade, color, Color.BLACK));
             if (progress > 0) {
-                // The pressed key sinks below its neighbours, they cast a shadow onto its top
-                Color shadow = shadowColor.multiplyAlpha(progress);
+                // The pressed key sinks below its neighbors, they cast a shadow onto its top
+                final Color shadow = shadowColor.multiplyAlpha(progress);
                 renderer.fillGradientRect(x, 0, whiteWidth, pressDepth * 2, shadow, shadow.withAlpha(0), shadow.withAlpha(0), shadow);
             }
             if (showLabels) {
                 this.renderLabel(renderer, note, progress, this.whiteLabelFont, this.labelColor.value(), x, whiteWidth, faceY - cornerRadius);
             }
         }
-        // Drawn after all white keys, a pressed key would otherwise cover half of its neighbour's separator
+        // Drawn after all white keys, a pressed key would otherwise cover half of its neighbor's separator
         if (separatorWidth > 0) {
-            Color separatorColor = this.separatorColor.value();
+            final Color separatorColor = this.separatorColor.value();
             for (int i = 1; i < this.whiteKeyCount; i++) {
                 renderer.fillRect(i * whiteWidth - separatorWidth / 2F, 0, separatorWidth, size.height(), separatorColor);
             }
         }
-        // Black keys are drawn last, they overlap the white keys
         for (int note = this.firstNote; note <= this.lastNote; note++) {
-            if (!isBlackKey(note)) continue;
-            float x = this.whiteIndex(note) * whiteWidth - blackWidth / 2F;
-            float progress = this.pressProgress(note);
-            Color color = this.keyColor(note, progress, this.blackKeyColor, this.blackKeyHoverColor, this.blackKeyPressedColor);
-            // The raised key casts a shadow onto the white keys, it disappears while the key is pressed down
-            float shadowOffset = pressDepth / 2F * (1 - progress);
+            if (!isBlackKey(note)) {
+                continue;
+            }
+            final float x = this.whiteIndex(note) * whiteWidth - blackWidth / 2F;
+            final float progress = this.pressProgress(note);
+            final Color color = this.keyColor(note, progress, this.blackKeyColor, this.blackKeyHoverColor, this.blackKeyPressedColor);
+            final float shadowOffset = pressDepth / 2F * (1 - progress);
             if (shadowOffset > 0) {
                 renderer.fillRoundedRect(x + shadowOffset, 0, blackWidth, blackHeight + shadowOffset, 0, cornerRadius, cornerRadius, 0, shadowColor);
             }
-            float faceY = Math.min(blackHeight - blackFaceHeight + pressDepth * progress, blackHeight);
+            final float faceY = Math.min(blackHeight - blackFaceHeight + pressDepth * progress, blackHeight);
             renderer.fillRect(x, 0, blackWidth, faceY, color);
             renderer.fillRoundedRect(x, faceY, blackWidth, blackHeight - faceY, 0, cornerRadius, cornerRadius, 0, Color.interpolate(faceShade, color, Color.WHITE));
             if (showLabels) {
@@ -331,29 +332,25 @@ public class PianoKeyboard extends Component {
     }
 
     private Color keyColor(final int note, final float progress, final ThemeOption<Color> color, final ThemeOption<Color> hoverColor, final ThemeOption<Color> pressedColor) {
-        Color baseColor = note == this.hoveredNote && !this.dragging ? hoverColor.value() : color.value();
+        final Color baseColor = note == this.hoveredNote && !this.dragging ? hoverColor.value() : color.value();
         return Color.interpolate(progress, baseColor, pressedColor.value());
     }
 
     private void renderLabel(final Renderer renderer, final int note, final float progress, final Font font, final Color color, final float x, final float width, final float bottomY) {
-        boolean pressed = progress >= 0.5F;
+        final boolean pressed = progress >= 0.5F;
         // Pressed labels are cached separately, the label color changes with the key color
-        ShapedText label = this.labelCache.computeIfAbsent(pressed ? note + 128 : note, key -> font.shapeText(noteName(note), pressed ? this.pressedLabelColor.value() : color));
-        // Labels wider than their key are hidden instead of overlapping the neighbouring keys
-        if (label.visualBounds().width() > width - this.separatorWidth.value()) return;
-        renderer.text(label, x + width / 2F, bottomY, TextOrigin.Horizontal.VISUAL_CENTER, TextOrigin.Vertical.LOGICAL_BOTTOM);
+        final ShapedText label = this.labelCache.computeIfAbsent(pressed ? note + 128 : note, key -> font.shapeText(noteName(note), pressed ? this.pressedLabelColor.value() : color));
+        if (label.visualBounds().width() <= width - this.separatorWidth.value()) {
+            renderer.text(label, x + width / 2F, bottomY, TextOrigin.Horizontal.VISUAL_CENTER, TextOrigin.Vertical.LOGICAL_BOTTOM);
+        }
     }
 
     private void updateLabelStyle() {
-        LabelStyle style = new LabelStyle(
-                this.rivet().backend().font(),
-                this.labelScale.value(),
-                this.blackKeyLabelScale.value(),
-                this.labelColor.value(),
-                this.blackKeyLabelColor.value(),
-                this.pressedLabelColor.value()
-        );
-        if (style.equals(this.labelStyle)) return;
+        final LabelStyle style = new LabelStyle(this.rivet().backend().font(), this.labelScale.value(), this.blackKeyLabelScale.value(), this.labelColor.value(), this.blackKeyLabelColor.value(), this.pressedLabelColor.value());
+        if (style.equals(this.labelStyle)) {
+            return;
+        }
+
         this.labelStyle = style;
         this.labelCache.clear();
         this.whiteLabelFont = style.font().derive(Math.max(1, Math.round(style.font().size() * style.whiteScale())));
@@ -369,17 +366,24 @@ public class PianoKeyboard extends Component {
      * @return the note under the position, black keys take precedence, or -1 if there is no key
      */
     private int noteAt(final float x, final float y, final Size size) {
-        if (x < 0 || x >= size.width() || y < 0 || y >= size.height()) return -1;
-        float whiteWidth = size.width() / this.whiteKeyCount;
+        if (x < 0 || x >= size.width() || y < 0 || y >= size.height()) {
+            return -1;
+        }
+
+        final float whiteWidth = size.width() / this.whiteKeyCount;
         if (y < size.height() * this.blackKeyHeightRatio.value()) {
-            float halfBlackWidth = whiteWidth * this.blackKeyWidthRatio.value() / 2F;
+            final float halfBlackWidth = whiteWidth * this.blackKeyWidthRatio.value() / 2F;
             for (int note = this.firstNote; note <= this.lastNote; note++) {
-                if (isBlackKey(note) && Math.abs(x - this.whiteIndex(note) * whiteWidth) < halfBlackWidth) return note;
+                if (isBlackKey(note) && Math.abs(x - this.whiteIndex(note) * whiteWidth) < halfBlackWidth) {
+                    return note;
+                }
             }
         }
-        int whiteIndex = Math.min((int) (x / whiteWidth), this.whiteKeyCount - 1);
+        final int whiteIndex = Math.min((int) (x / whiteWidth), this.whiteKeyCount - 1);
         for (int note = this.firstNote; note <= this.lastNote; note++) {
-            if (!isBlackKey(note) && this.whiteIndex(note) == whiteIndex) return note;
+            if (!isBlackKey(note) && this.whiteIndex(note) == whiteIndex) {
+                return note;
+            }
         }
         return -1;
     }
@@ -390,7 +394,9 @@ public class PianoKeyboard extends Component {
     private int whiteIndex(final int note) {
         int count = 0;
         for (int i = this.firstNote; i < note; i++) {
-            if (!isBlackKey(i)) count++;
+            if (!isBlackKey(i)) {
+                count++;
+            }
         }
         return count;
     }
@@ -501,7 +507,6 @@ public class PianoKeyboard extends Component {
     }
 
     /**
-     * @param note the MIDI note
      * @return the scientific pitch name, 60 is C4
      */
     public static String noteName(final int note) {
