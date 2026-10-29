@@ -37,12 +37,11 @@ import net.lenni0451.rivet.text.model.TextOrigin;
 import net.lenni0451.rivet.theme.ThemeOption;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.IntConsumer;
 
 /**
@@ -51,12 +50,16 @@ import java.util.function.IntConsumer;
 public class PianoKeyboard extends Component {
 
     private static final String[] NOTE_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+    // Number of white keys below each note of an octave, starting at C
+    private static final int[] WHITE_KEYS_BELOW = {0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6};
+    // Distance of each white key of an octave from C
+    private static final int[] WHITE_KEY_OFFSETS = {0, 2, 4, 5, 7, 9, 11};
 
     private final int firstNote;
     private final int lastNote;
     private final int whiteKeyCount;
-    // Written from input and application threads, read by the render thread
-    private final Set<Integer> pressedNotes = ConcurrentHashMap.newKeySet();
+    // Indexed by note - firstNote
+    private final boolean[] pressedNotes;
     private final ListenerList<IntConsumer> notePressListener = new ListenerList<>();
     private final ListenerList<IntConsumer> noteReleaseListener = new ListenerList<>();
     private final BooleanProperty showLabels = new BooleanProperty(true);
@@ -87,8 +90,8 @@ public class PianoKeyboard extends Component {
 
     // Indexed by note - firstNote, animates between 0 (released) and 1 (pressed)
     private final List<Transition<Float>> pressProgress = new ArrayList<>();
-    // Only accessed from the render thread, keyed by note and pressed label color
-    private final Map<Integer, ShapedText> labelCache = new HashMap<>();
+    // Only accessed from the render thread, indexed by note, pressed labels are stored at note + 128
+    private final ShapedText[] labelCache = new ShapedText[256];
     private LabelStyle labelStyle;
     private Font whiteLabelFont;
     private Font blackLabelFont;
@@ -121,9 +124,10 @@ public class PianoKeyboard extends Component {
         this.firstNote = firstNote;
         this.lastNote = lastNote;
         this.whiteKeyCount = this.whiteIndex(lastNote) + 1;
+        this.pressedNotes = new boolean[lastNote - firstNote + 1];
         for (int note = firstNote; note <= lastNote; note++) {
             final int key = note;
-            this.pressProgress.add(new Transition<>(this, () -> this.pressedNotes.contains(key) ? 1F : 0F, this.pressAnimation::value, Interpolator.FLOAT));
+            this.pressProgress.add(new Transition<>(this, () -> this.isPressed(key) ? 1F : 0F, this.pressAnimation::value, Interpolator.FLOAT));
         }
     }
 
@@ -136,14 +140,20 @@ public class PianoKeyboard extends Component {
     }
 
     /**
-     * @return an unmodifiable live view of the currently pressed notes
+     * @return an unmodifiable snapshot of the currently pressed notes in ascending order
      */
     public final Set<Integer> pressedNotes() {
-        return Collections.unmodifiableSet(this.pressedNotes);
+        final Set<Integer> pressedNotes = new LinkedHashSet<>();
+        for (int note = this.firstNote; note <= this.lastNote; note++) {
+            if (this.isPressed(note)) {
+                pressedNotes.add(note);
+            }
+        }
+        return Collections.unmodifiableSet(pressedNotes);
     }
 
     public final boolean isPressed(final int note) {
-        return this.pressedNotes.contains(note);
+        return note >= this.firstNote && note <= this.lastNote && this.pressedNotes[note - this.firstNote];
     }
 
     /**
@@ -177,7 +187,8 @@ public class PianoKeyboard extends Component {
      */
     public final PianoKeyboard press(final int note) {
         this.checkInRange(note);
-        if (this.pressedNotes.add(note)) {
+        if (!this.pressedNotes[note - this.firstNote]) {
+            this.pressedNotes[note - this.firstNote] = true;
             this.notePressListener.call(listener -> listener.accept(note));
         }
         return this;
@@ -188,15 +199,18 @@ public class PianoKeyboard extends Component {
      */
     public final PianoKeyboard release(final int note) {
         this.checkInRange(note);
-        if (this.pressedNotes.remove(note)) {
+        if (this.pressedNotes[note - this.firstNote]) {
+            this.pressedNotes[note - this.firstNote] = false;
             this.noteReleaseListener.call(listener -> listener.accept(note));
         }
         return this;
     }
 
     public final PianoKeyboard releaseAll() {
-        for (final int note : Set.copyOf(this.pressedNotes)) {
-            this.release(note);
+        for (int note = this.firstNote; note <= this.lastNote; note++) {
+            if (this.isPressed(note)) {
+                this.release(note);
+            }
         }
         return this;
     }
@@ -276,6 +290,12 @@ public class PianoKeyboard extends Component {
         final float separatorWidth = this.separatorWidth.value();
         final float faceShade = this.faceShade.value();
         final Color shadowColor = this.shadowColor.value();
+        final Color whiteKeyColor = this.whiteKeyColor.value();
+        final Color whiteKeyHoverColor = this.whiteKeyHoverColor.value();
+        final Color whiteKeyPressedColor = this.whiteKeyPressedColor.value();
+        final Color blackKeyColor = this.blackKeyColor.value();
+        final Color blackKeyHoverColor = this.blackKeyHoverColor.value();
+        final Color blackKeyPressedColor = this.blackKeyPressedColor.value();
         final boolean showLabels = this.showLabels.get();
         if (showLabels) {
             this.updateLabelStyle();
@@ -287,7 +307,7 @@ public class PianoKeyboard extends Component {
             }
             final float x = this.whiteIndex(note) * whiteWidth;
             final float progress = this.pressProgress(note);
-            final Color color = this.keyColor(note, progress, this.whiteKeyColor, this.whiteKeyHoverColor, this.whiteKeyPressedColor);
+            final Color color = this.keyColor(note, progress, whiteKeyColor, whiteKeyHoverColor, whiteKeyPressedColor);
             final float faceY = Math.min(size.height() - whiteFaceHeight + pressDepth * progress, size.height());
             renderer.fillRect(x, 0, whiteWidth, faceY, color);
             renderer.fillRoundedRect(x, faceY, whiteWidth, size.height() - faceY, 0, cornerRadius, cornerRadius, 0, Color.interpolate(faceShade, color, Color.BLACK));
@@ -297,7 +317,7 @@ public class PianoKeyboard extends Component {
                 renderer.fillGradientRect(x, 0, whiteWidth, pressDepth * 2, shadow, shadow.withAlpha(0), shadow.withAlpha(0), shadow);
             }
             if (showLabels) {
-                this.renderLabel(renderer, note, progress, this.whiteLabelFont, this.labelColor.value(), x, whiteWidth, faceY - cornerRadius);
+                this.renderLabel(renderer, note, progress, this.whiteLabelFont, this.labelStyle.whiteColor(), x, whiteWidth, whiteWidth - separatorWidth, faceY - cornerRadius);
             }
         }
         // Drawn after all white keys, a pressed key would otherwise cover half of its neighbor's separator
@@ -313,7 +333,7 @@ public class PianoKeyboard extends Component {
             }
             final float x = this.whiteIndex(note) * whiteWidth - blackWidth / 2F;
             final float progress = this.pressProgress(note);
-            final Color color = this.keyColor(note, progress, this.blackKeyColor, this.blackKeyHoverColor, this.blackKeyPressedColor);
+            final Color color = this.keyColor(note, progress, blackKeyColor, blackKeyHoverColor, blackKeyPressedColor);
             final float shadowOffset = pressDepth / 2F * (1 - progress);
             if (shadowOffset > 0) {
                 renderer.fillRoundedRect(x + shadowOffset, 0, blackWidth, blackHeight + shadowOffset, 0, cornerRadius, cornerRadius, 0, shadowColor);
@@ -322,7 +342,7 @@ public class PianoKeyboard extends Component {
             renderer.fillRect(x, 0, blackWidth, faceY, color);
             renderer.fillRoundedRect(x, faceY, blackWidth, blackHeight - faceY, 0, cornerRadius, cornerRadius, 0, Color.interpolate(faceShade, color, Color.WHITE));
             if (showLabels) {
-                this.renderLabel(renderer, note, progress, this.blackLabelFont, this.blackKeyLabelColor.value(), x, blackWidth, faceY - cornerRadius);
+                this.renderLabel(renderer, note, progress, this.blackLabelFont, this.labelStyle.blackColor(), x, blackWidth, blackWidth - separatorWidth, faceY - cornerRadius);
             }
         }
     }
@@ -331,16 +351,30 @@ public class PianoKeyboard extends Component {
         return this.pressProgress.get(note - this.firstNote).value();
     }
 
-    private Color keyColor(final int note, final float progress, final ThemeOption<Color> color, final ThemeOption<Color> hoverColor, final ThemeOption<Color> pressedColor) {
-        final Color baseColor = note == this.hoveredNote && !this.dragging ? hoverColor.value() : color.value();
-        return Color.interpolate(progress, baseColor, pressedColor.value());
+    private Color keyColor(final int note, final float progress, final Color color, final Color hoverColor, final Color pressedColor) {
+        if (progress >= 1) {
+            return pressedColor;
+        }
+
+        final Color baseColor = note == this.hoveredNote && !this.dragging ? hoverColor : color;
+        // Only animating keys need a new color, interpolating every key every frame would allocate needlessly
+        if (progress <= 0) {
+            return baseColor;
+        }
+
+        return Color.interpolate(progress, baseColor, pressedColor);
     }
 
-    private void renderLabel(final Renderer renderer, final int note, final float progress, final Font font, final Color color, final float x, final float width, final float bottomY) {
+    private void renderLabel(final Renderer renderer, final int note, final float progress, final Font font, final Color color, final float x, final float width, final float maxLabelWidth, final float bottomY) {
         final boolean pressed = progress >= 0.5F;
         // Pressed labels are cached separately, the label color changes with the key color
-        final ShapedText label = this.labelCache.computeIfAbsent(pressed ? note + 128 : note, key -> font.shapeText(noteName(note), pressed ? this.pressedLabelColor.value() : color));
-        if (label.visualBounds().width() <= width - this.separatorWidth.value()) {
+        final int cacheIndex = pressed ? note + 128 : note;
+        ShapedText label = this.labelCache[cacheIndex];
+        if (label == null) {
+            label = font.shapeText(noteName(note), pressed ? this.labelStyle.pressedColor() : color);
+            this.labelCache[cacheIndex] = label;
+        }
+        if (label.visualBounds().width() <= maxLabelWidth) {
             renderer.text(label, x + width / 2F, bottomY, TextOrigin.Horizontal.VISUAL_CENTER, TextOrigin.Vertical.LOGICAL_BOTTOM);
         }
     }
@@ -352,7 +386,7 @@ public class PianoKeyboard extends Component {
         }
 
         this.labelStyle = style;
-        this.labelCache.clear();
+        Arrays.fill(this.labelCache, null);
         this.whiteLabelFont = style.font().derive(Math.max(1, Math.round(style.font().size() * style.whiteScale())));
         this.blackLabelFont = style.font().derive(Math.max(1, Math.round(style.font().size() * style.blackScale())));
     }
@@ -379,26 +413,15 @@ public class PianoKeyboard extends Component {
                 }
             }
         }
-        final int whiteIndex = Math.min((int) (x / whiteWidth), this.whiteKeyCount - 1);
-        for (int note = this.firstNote; note <= this.lastNote; note++) {
-            if (!isBlackKey(note) && this.whiteIndex(note) == whiteIndex) {
-                return note;
-            }
-        }
-        return -1;
+        final int whiteKey = absoluteWhiteIndex(this.firstNote) + Math.min((int) (x / whiteWidth), this.whiteKeyCount - 1);
+        return whiteKey / 7 * 12 + WHITE_KEY_OFFSETS[whiteKey % 7];
     }
 
     /**
      * @return the number of white keys left of the note, for a black key this is the index of the white key to its right
      */
     private int whiteIndex(final int note) {
-        int count = 0;
-        for (int i = this.firstNote; i < note; i++) {
-            if (!isBlackKey(i)) {
-                count++;
-            }
-        }
-        return count;
+        return absoluteWhiteIndex(note) - absoluteWhiteIndex(this.firstNote);
     }
 
     private void checkInRange(final int note) {
@@ -511,6 +534,13 @@ public class PianoKeyboard extends Component {
      */
     public static String noteName(final int note) {
         return NOTE_NAMES[Math.floorMod(note, 12)] + (Math.floorDiv(note, 12) - 1);
+    }
+
+    /**
+     * @return the number of white keys below the note, counted from MIDI note 0
+     */
+    private static int absoluteWhiteIndex(final int note) {
+        return note / 12 * 7 + WHITE_KEYS_BELOW[note % 12];
     }
 
     private static void checkNote(final int note) {
