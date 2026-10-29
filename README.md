@@ -30,7 +30,24 @@ Table<Person> table = new Table<>(people, List.of(name, age));
 rivet.root().add(table);
 ```
 
-A demo application can be started with `./gradlew runDemo`.
+### Piano Keyboard
+
+A piano keyboard spanning a range of MIDI notes (60 = C4, middle C). The range has to start and end on a white key.
+Keys are played by clicking, dragging over the keys plays a glissando. Notes can also be pressed programmatically, e.g. to visualize playback.
+
+```java
+PianoKeyboard piano = new PianoKeyboard(48, 84); // C3 - C6
+piano.notePressListener().add(note -> channel.noteOn(note, 90));
+piano.noteReleaseListener().add(channel::noteOff);
+piano.press(60).press(64).press(67); // C major chord
+rivet.root().add(piano);
+```
+
+## Demos
+
+Demo applications for all components are located in `src/demo`:
+
+A demo is started by running the `main` method of its class.
 
 ## Contact
 
