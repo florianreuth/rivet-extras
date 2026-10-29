@@ -334,10 +334,6 @@ public class PianoKeyboard extends Component {
             final float x = this.whiteIndex(note) * whiteWidth - blackWidth / 2F;
             final float progress = this.pressProgress(note);
             final Color color = this.keyColor(note, progress, blackKeyColor, blackKeyHoverColor, blackKeyPressedColor);
-            final float shadowOffset = pressDepth / 2F * (1 - progress);
-            if (shadowOffset > 0) {
-                renderer.fillRoundedRect(x + shadowOffset, 0, blackWidth, blackHeight + shadowOffset, 0, cornerRadius, cornerRadius, 0, shadowColor);
-            }
             final float faceY = Math.min(blackHeight - blackFaceHeight + pressDepth * progress, blackHeight);
             renderer.fillRect(x, 0, blackWidth, faceY, color);
             renderer.fillRoundedRect(x, faceY, blackWidth, blackHeight - faceY, 0, cornerRadius, cornerRadius, 0, Color.interpolate(faceShade, color, Color.WHITE));
