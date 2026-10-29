@@ -80,6 +80,10 @@ public class Table<E> extends ParentContainer {
     private float layoutWidth;
     private float headerWidth;
     private float headerHeight;
+    // Bumped when a column width changes, a cache computed while the widths changed must not be reused
+    private volatile int columnWidthVersion;
+    // Shared by the header and all rows, written by the input and the render thread
+    private volatile ColumnWidths columnWidthCache;
 
     public Table(final List<E> data, final List<TableColumn<E>> columns) {
         this(() -> data, columns);
@@ -114,7 +118,10 @@ public class Table<E> extends ParentContainer {
         this.sortOrder.updateListener().add(order -> this.onSortChanged());
 
         for (final TableColumn<E> column : this.columns) {
-            column.width().updateListener().add(width -> this.requestLayoutRecalculation());
+            column.width().updateListener().add(width -> {
+                this.columnWidthVersion++;
+                this.requestLayoutRecalculation();
+            });
         }
         this.cellPadding.changeListener().add(padding -> this.requestLayoutRecalculation());
         this.minColumnWidth.changeListener().add(width -> this.requestLayoutRecalculation());
@@ -332,9 +339,17 @@ public class Table<E> extends ParentContainer {
 
     /**
      * @param availableWidth the width of the row the columns are distributed over
-     * @return the pixel width of every column in column order, exceeds the available width only if the minimum widths do not fit
+     * @return the pixel width of every column in column order, exceeds the available width only if the minimum widths do not fit, shared and must not be modified
      */
     final float[] columnWidths(final float availableWidth) {
+        // Read before the fractions, a width change during the calculation then invalidates the result
+        final int version = this.columnWidthVersion;
+        final float defaultMinWidth = this.minColumnWidth.value();
+        final ColumnWidths cache = this.columnWidthCache;
+        if (cache != null && cache.version() == version && cache.availableWidth() == availableWidth && cache.defaultMinWidth() == defaultMinWidth) {
+            return cache.widths();
+        }
+
         final int count = this.columns.size();
         final float[] fractions = this.columnFractions();
 
@@ -363,6 +378,7 @@ public class Table<E> extends ParentContainer {
                 }
             }
         }
+        this.columnWidthCache = new ColumnWidths(version, availableWidth, defaultMinWidth, widths);
         return widths;
     }
 
@@ -545,6 +561,10 @@ public class Table<E> extends ParentContainer {
             }
         }
         return true;
+    }
+
+
+    private record ColumnWidths(int version, float availableWidth, float defaultMinWidth, float[] widths) {
     }
 
 }
