@@ -18,10 +18,13 @@
 package de.florianreuth.rivetextras.table;
 
 import net.lenni0451.rivet.component.Component;
+import net.lenni0451.rivet.component.impl.Label;
 import net.lenni0451.rivet.property.FloatProperty;
+import net.lenni0451.rivet.text.model.TextOrigin;
 
 import java.util.Comparator;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Column definition of a {@link Table}, should be fully configured before the table is attached.
@@ -30,7 +33,7 @@ import java.util.function.Function;
  */
 public class TableColumn<E> {
 
-    private final String title;
+    private final Supplier<Component> headerFactory;
     private final Function<E, Component> cellFactory;
     private final FloatProperty width = new FloatProperty(-1);
     private float minWidth = -1;
@@ -38,22 +41,30 @@ public class TableColumn<E> {
     private Comparator<E> comparator;
 
     /**
-     * @param title       the text shown in the header
+     * @param title       the text shown in the header as left aligned {@link Label}
      * @param cellFactory creates the cell component of a row, called once per row
      */
     public TableColumn(final String title, final Function<E, Component> cellFactory) {
-        this.title = title;
+        this(() -> new Label(title).horizontalOrigin(TextOrigin.Horizontal.LOGICAL_LEFT), cellFactory);
+    }
+
+    /**
+     * @param headerFactory creates the header component, called once per table the column is part of
+     * @param cellFactory   creates the cell component of a row, called once per row
+     */
+    public TableColumn(final Supplier<Component> headerFactory, final Function<E, Component> cellFactory) {
+        this.headerFactory = headerFactory;
         this.cellFactory = cellFactory;
         this.width.addValidator(width -> {
             if (width > 1) {
-                throw new IllegalArgumentException("Width of column '" + title + "' is a fraction of the table width and must not exceed 1, got " + width);
+                throw new IllegalArgumentException("Width of a column is a fraction of the table width and must not exceed 1, got " + width);
             }
             return width;
         });
     }
 
-    public final String title() {
-        return this.title;
+    public final Supplier<Component> headerFactory() {
+        return this.headerFactory;
     }
 
     public final Function<E, Component> cellFactory() {

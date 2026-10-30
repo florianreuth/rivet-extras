@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -86,7 +87,8 @@ public class TableDemo extends AWTApplication {
         final Table<Player> table = new Table<>(players, List.of(name, level, playtime, country, id));
 
         final Label status = new Label("");
-        final Runnable updateStatus = () -> status.text("Sorted by " + (table.sortColumn().get() == null ? "nothing" : table.sortColumn().get().title() + " " + table.sortOrder().get().name().toLowerCase()));
+        final Map<TableColumn<Player>, String> columnNames = Map.of(name, "Name", level, "Level", playtime, "Playtime", country, "Country", id, "ID");
+        final Runnable updateStatus = () -> status.text("Sorted by " + (table.sortColumn().get() == null ? "nothing" : columnNames.get(table.sortColumn().get()) + " " + table.sortOrder().get().name().toLowerCase()));
         table.sortColumn().syncListener().add(column -> updateStatus.run());
         table.sortOrder().syncListener().add(order -> updateStatus.run());
         updateStatus.run();

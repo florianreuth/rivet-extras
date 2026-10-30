@@ -106,10 +106,10 @@ public class Table<E> extends ParentContainer {
 
         this.sortColumn.addValidator(column -> {
             if (column != null && !this.columns.contains(column)) {
-                throw new IllegalArgumentException("Column '" + column.title() + "' is not part of this table");
+                throw new IllegalArgumentException("Column is not part of this table");
             }
             if (column != null && !column.sortable()) {
-                throw new IllegalArgumentException("Column '" + column.title() + "' is not sortable");
+                throw new IllegalArgumentException("Column at index " + this.columns.indexOf(column) + " is not sortable");
             }
             return column;
         });
@@ -212,7 +212,7 @@ public class Table<E> extends ParentContainer {
     public final Table<E> autoSizeColumn(final TableColumn<E> column) {
         final int index = this.columns.indexOf(column);
         if (index < 0) {
-            throw new IllegalArgumentException("Column '" + column.title() + "' is not part of this table");
+            throw new IllegalArgumentException("Column is not part of this table");
         }
         float width = idealWidth(this.header.children().get(index));
         for (final Component row : this.rows.children()) {

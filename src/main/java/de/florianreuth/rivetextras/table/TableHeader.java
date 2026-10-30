@@ -20,7 +20,6 @@ package de.florianreuth.rivetextras.table;
 import net.lenni0451.rivet.backend.render.Renderer;
 import net.lenni0451.rivet.component.container.Container;
 import net.lenni0451.rivet.component.impl.Arrow;
-import net.lenni0451.rivet.component.impl.Label;
 import net.lenni0451.rivet.input.mouse.MouseButton;
 import net.lenni0451.rivet.input.mouse.MouseButtonEvent;
 import net.lenni0451.rivet.input.mouse.MouseMoveEvent;
@@ -28,7 +27,6 @@ import net.lenni0451.rivet.layout.dock.DockLayout;
 import net.lenni0451.rivet.layout.dock.DockPosition;
 import net.lenni0451.rivet.math.Rectangle;
 import net.lenni0451.rivet.math.Size;
-import net.lenni0451.rivet.text.model.TextOrigin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,9 +53,9 @@ final class TableHeader<E> extends Container {
             this.sortArrows.add(sortArrow);
 
             final Container cell = new Container(DockLayout.DEFAULT);
-            // The arrow has to be added first, the centered label takes all remaining space
+            // The arrow has to be added first, the centered header takes all remaining space
             cell.add(sortArrow);
-            cell.add(new Label(column.title()), label -> label.horizontalOrigin(TextOrigin.Horizontal.LOGICAL_LEFT).layoutOptions(DockPosition.CENTER));
+            cell.add(column.headerFactory().get(), header -> header.layoutOptions(DockPosition.CENTER));
             this.add(cell);
         }
         this.updateSortIndicators();
