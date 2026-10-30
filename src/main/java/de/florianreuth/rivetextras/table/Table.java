@@ -305,7 +305,7 @@ public class Table<E> extends ParentContainer {
     /**
      * @return the share of the row width of every column in column order, sums up to 1
      */
-    final float[] columnFractions() {
+    private float[] columnFractions() {
         final int count = this.columns.size();
         final float[] fractions = new float[count];
         float setFraction = 0;
