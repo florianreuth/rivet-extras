@@ -18,6 +18,7 @@
 package de.florianreuth.rivetextras.demo;
 
 import de.florianreuth.rivetextras.piano.PianoKeyboard;
+import de.florianreuth.rivetextras.utils.NoteUtils;
 import net.lenni0451.rivet.Rivet;
 import net.lenni0451.rivet.backend.awt.AWTApplication;
 import net.lenni0451.rivet.backend.awt.AWTAssetLoader;
@@ -69,7 +70,7 @@ public class PianoKeyboardDemo extends AWTApplication {
             piano.notePressListener().add(note -> channel.noteOn(note, 90));
             piano.noteReleaseListener().add(channel::noteOff);
         }
-        final Runnable updateStatus = () -> status.text((channel == null ? "No MIDI synthesizer available - " : "") + "Pressed: " + (piano.pressedNotes().isEmpty() ? "nothing" : piano.pressedNotes().stream().sorted().map(PianoKeyboard::noteName).collect(Collectors.joining(", "))));
+        final Runnable updateStatus = () -> status.text((channel == null ? "No MIDI synthesizer available - " : "") + "Pressed: " + (piano.pressedNotes().isEmpty() ? "nothing" : piano.pressedNotes().stream().sorted().map(NoteUtils::noteName).collect(Collectors.joining(", "))));
         piano.notePressListener().add(note -> updateStatus.run());
         piano.noteReleaseListener().add(note -> updateStatus.run());
         updateStatus.run();

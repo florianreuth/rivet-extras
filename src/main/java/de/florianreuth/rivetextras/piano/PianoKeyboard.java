@@ -44,16 +44,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.IntConsumer;
 
+import static de.florianreuth.rivetextras.utils.NoteUtils.absoluteWhiteIndex;
+import static de.florianreuth.rivetextras.utils.NoteUtils.checkNote;
+import static de.florianreuth.rivetextras.utils.NoteUtils.isBlackKey;
+import static de.florianreuth.rivetextras.utils.NoteUtils.noteName;
+import static de.florianreuth.rivetextras.utils.NoteUtils.whiteKeyNote;
+
 /**
  * Piano keyboard spanning a range of MIDI notes, keys can be played with the mouse or pressed programmatically.
  */
 public class PianoKeyboard extends Component {
-
-    private static final String[] NOTE_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
-    // Number of white keys below each note of an octave, starting at C
-    private static final int[] WHITE_KEYS_BELOW = {0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6};
-    // Distance of each white key of an octave from C
-    private static final int[] WHITE_KEY_OFFSETS = {0, 2, 4, 5, 7, 9, 11};
 
     private final int firstNote;
     private final int lastNote;
@@ -410,7 +410,7 @@ public class PianoKeyboard extends Component {
             }
         }
         final int whiteKey = absoluteWhiteIndex(this.firstNote) + Math.min((int) (x / whiteWidth), this.whiteKeyCount - 1);
-        return whiteKey / 7 * 12 + WHITE_KEY_OFFSETS[whiteKey % 7];
+        return whiteKeyNote(whiteKey);
     }
 
     /**
@@ -517,34 +517,6 @@ public class PianoKeyboard extends Component {
     public final ThemeOption<Color> pressedLabelColor() {
         return this.pressedLabelColor;
     }
-
-    public static boolean isBlackKey(final int note) {
-        return switch (Math.floorMod(note, 12)) {
-            case 1, 3, 6, 8, 10 -> true;
-            default -> false;
-        };
-    }
-
-    /**
-     * @return the scientific pitch name, 60 is C4
-     */
-    public static String noteName(final int note) {
-        return NOTE_NAMES[Math.floorMod(note, 12)] + (Math.floorDiv(note, 12) - 1);
-    }
-
-    /**
-     * @return the number of white keys below the note, counted from MIDI note 0
-     */
-    private static int absoluteWhiteIndex(final int note) {
-        return note / 12 * 7 + WHITE_KEYS_BELOW[note % 12];
-    }
-
-    private static void checkNote(final int note) {
-        if (note < 0 || note > 127) {
-            throw new IllegalArgumentException("Note " + note + " is outside the MIDI range 0 - 127");
-        }
-    }
-
 
     private record LabelStyle(Font font, float whiteScale, float blackScale, Color whiteColor, Color blackColor, Color pressedColor) {
     }
