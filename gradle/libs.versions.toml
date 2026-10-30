@@ -1,5 +1,5 @@
 [versions]
-rivet = "0.0.3-20261018.204035-5"
+rivet = "0.0.4-20261025.202113-2"
 
 [libraries]
 foojay-resolver-convention-plugin = { module = "org.gradle.toolchains.foojay-resolver-convention:org.gradle.toolchains.foojay-resolver-convention.gradle.plugin", version = "1.0.0" }

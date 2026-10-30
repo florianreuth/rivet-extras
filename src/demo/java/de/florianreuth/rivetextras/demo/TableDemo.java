@@ -87,8 +87,8 @@ public class TableDemo extends AWTApplication {
 
         final Label status = new Label("");
         final Runnable updateStatus = () -> status.text("Sorted by " + (table.sortColumn().get() == null ? "nothing" : table.sortColumn().get().title() + " " + table.sortOrder().get().name().toLowerCase()));
-        table.sortColumn().updateListener().add(column -> updateStatus.run());
-        table.sortOrder().updateListener().add(order -> updateStatus.run());
+        table.sortColumn().syncListener().add(column -> updateStatus.run());
+        table.sortOrder().syncListener().add(order -> updateStatus.run());
         updateStatus.run();
 
         final Container toolbar = new Container(new HorizontalListLayout(5, true));

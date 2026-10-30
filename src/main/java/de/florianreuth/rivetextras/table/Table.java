@@ -114,11 +114,11 @@ public class Table<E> extends ParentContainer {
             return column;
         });
         this.sortOrder.addValidator(Objects::requireNonNull);
-        this.sortColumn.updateListener().add(column -> this.onSortChanged());
-        this.sortOrder.updateListener().add(order -> this.onSortChanged());
+        this.sortColumn.syncListener().add(column -> this.onSortChanged());
+        this.sortOrder.syncListener().add(order -> this.onSortChanged());
 
         for (final TableColumn<E> column : this.columns) {
-            column.width().updateListener().add(width -> {
+            column.width().syncListener().add(width -> {
                 this.columnWidthVersion++;
                 this.requestLayoutRecalculation();
             });
