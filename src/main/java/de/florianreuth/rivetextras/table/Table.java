@@ -26,6 +26,8 @@ import net.lenni0451.rivet.component.ParentContainer;
 import net.lenni0451.rivet.component.container.Container;
 import net.lenni0451.rivet.component.container.DynamicListContainer;
 import net.lenni0451.rivet.component.container.ScrollContainer;
+import net.lenni0451.rivet.event.ListenerList;
+import net.lenni0451.rivet.input.mouse.MouseButtonEvent;
 import net.lenni0451.rivet.layout.list.VerticalListLayout;
 import net.lenni0451.rivet.math.Padding;
 import net.lenni0451.rivet.math.Rectangle;
@@ -59,6 +61,7 @@ public class Table<E> extends ParentContainer {
     private final ScrollContainer body;
     private final ObjectProperty<TableColumn<E>> sortColumn = new ObjectProperty<>();
     private final ObjectProperty<SortOrder> sortOrder = new ObjectProperty<>(SortOrder.ASCENDING);
+    private final ListenerList<RowClickListener<E>> rowClickListener = new ListenerList<>();
 
     private final ThemeOption<Padding> cellPadding = new ThemeOption<>(this, ExtrasTheme.Table.CELL_PADDING);
     private final ThemeOption<Float> gridWidth = new ThemeOption<>(this, ExtrasTheme.Table.GRID_WIDTH);
@@ -147,6 +150,13 @@ public class Table<E> extends ParentContainer {
 
     public final ObjectProperty<SortOrder> sortOrder() {
         return this.sortOrder;
+    }
+
+    /**
+     * @return the listeners called when a row is released with the button it was pressed with, clicks handled by a cell are not included
+     */
+    public final ListenerList<RowClickListener<E>> rowClickListener() {
+        return this.rowClickListener;
     }
 
     /**
@@ -565,6 +575,10 @@ public class Table<E> extends ParentContainer {
 
 
     private record ColumnWidths(int version, float availableWidth, float defaultMinWidth, float[] widths) {
+    }
+
+    public interface RowClickListener<E> {
+        void onClick(final E item, final MouseButtonEvent event);
     }
 
 }

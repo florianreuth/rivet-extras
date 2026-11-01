@@ -92,6 +92,7 @@ public class TableDemo extends AWTApplication {
         table.sortColumn().syncListener().add(column -> updateStatus.run());
         table.sortOrder().syncListener().add(order -> updateStatus.run());
         updateStatus.run();
+        table.rowClickListener().add((player, event) -> status.text("Clicked " + player.name + " with " + event.button().name().toLowerCase()));
 
         final Container toolbar = new Container(new HorizontalListLayout(5, true));
         toolbar.add(new Button("Add", () -> players.add(randomPlayer(nextId.getAndIncrement()))));

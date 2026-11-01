@@ -20,14 +20,20 @@ package de.florianreuth.rivetextras.table;
 import net.lenni0451.commons.color.Color;
 import net.lenni0451.rivet.backend.render.Renderer;
 import net.lenni0451.rivet.component.container.Container;
+import net.lenni0451.rivet.input.mouse.MouseButton;
+import net.lenni0451.rivet.input.mouse.MouseButtonEvent;
 import net.lenni0451.rivet.input.mouse.MouseMoveEvent;
 import net.lenni0451.rivet.math.Rectangle;
 import net.lenni0451.rivet.math.Size;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 final class TableRow<E> extends Container {
 
     private final Table<E> table;
     private final E item;
+    private final Set<MouseButton> pressedButtons = EnumSet.noneOf(MouseButton.class);
     private boolean hovered;
 
     TableRow(final Table<E> table, final E item) {
@@ -43,12 +49,14 @@ final class TableRow<E> extends Container {
     protected void onRemovedInternal() {
         super.onRemovedInternal();
         this.hovered = false;
+        this.pressedButtons.clear();
     }
 
     @Override
     protected void onDisabledInternal() {
         super.onDisabledInternal();
         this.hovered = false;
+        this.pressedButtons.clear();
     }
 
     @Override
@@ -66,6 +74,24 @@ final class TableRow<E> extends Container {
     protected boolean onMouseMoveInternal(final MouseMoveEvent event, final Size size) {
         // Cells like labels do not handle mouse moves, the row would never be considered hovered otherwise
         super.onMouseMoveInternal(event, size);
+        return true;
+    }
+
+    @Override
+    protected boolean onMouseDownInternal(final MouseButtonEvent event, final Size size) {
+        // Interactive cells like buttons handle their own clicks, those must not count as row clicks
+        if (!super.onMouseDownInternal(event, size)) {
+            this.pressedButtons.add(event.button());
+        }
+        return true;
+    }
+
+    @Override
+    protected boolean onMouseUpInternal(final MouseButtonEvent event, final Size size) {
+        super.onMouseUpInternal(event, size);
+        if (this.pressedButtons.remove(event.button()) && this.hovered) {
+            this.table.rowClickListener().call(listener -> listener.onClick(this.item, event));
+        }
         return true;
     }
 
