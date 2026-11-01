@@ -1,0 +1,18 @@
+<RivetUi>
+    <Root>
+        <PaddedContainer padding="10">
+            <Container>
+                <DockLayout gap="5"/>
+                <Label id="status" text="Click a row" horizontalOrigin="LOGICAL_LEFT">
+                    <DockPosition position="BOTTOM"/>
+                </Label>
+                <Table id="table" data="${players}" rowHoverBackgroundColor="?{table.header_hover_background_color}">
+                    <DockPosition position="CENTER"/>
+                    <TableColumn title="Name" cellFactory="${nameCell}" comparator="${byName}" width="0.5"/>
+                    <TableColumn title="Level" cellFactory="${levelCell}" comparator="${byLevel}"/>
+                    <TableColumn title="ID" cellFactory="${idCell}" width="0.15" resizable="false"/>
+                </Table>
+            </Container>
+        </PaddedContainer>
+    </Root>
+</RivetUi>

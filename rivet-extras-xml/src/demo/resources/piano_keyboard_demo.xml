@@ -1,0 +1,15 @@
+<RivetUi>
+    <Root>
+        <PaddedContainer padding="10">
+            <Container>
+                <DockLayout gap="5"/>
+                <Label id="status" text="Click a key" horizontalOrigin="LOGICAL_LEFT">
+                    <DockPosition position="BOTTOM"/>
+                </Label>
+                <PianoKeyboard id="piano" firstNote="60" lastNote="84" whiteKeyPressedColor="#E91E63">
+                    <DockPosition position="CENTER"/>
+                </PianoKeyboard>
+            </Container>
+        </PaddedContainer>
+    </Root>
+</RivetUi>

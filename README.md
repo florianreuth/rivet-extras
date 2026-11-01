@@ -47,9 +47,41 @@ piano.press(60).press(64).press(67); // C major chord
 rivet.root().add(piano);
 ```
 
+## XML
+
+The `rivet-extras-xml` module adds the components to the XML loader of rivet.
+
+```kotlin
+dependencies {
+    implementation("de.florianreuth:rivet-extras-xml:1.0.0-SNAPSHOT")
+}
+```
+
+```xml
+<RivetUi>
+    <Root>
+        <Table id="people" data="${people}">
+            <TableColumn title="Name" cellFactory="${nameCell}" comparator="${byName}"/>
+            <TableColumn title="Age" cellFactory="${ageCell}" width="0.2"/>
+        </Table>
+    </Root>
+</RivetUi>
+```
+
+```java
+XmlUi ui = ExtrasXml.loader().load(xml)
+        .variable("people", people)
+        .variable("nameCell", (Function<Person, Component>) p -> new Label(p.name()))
+        .variable("ageCell", (Function<Person, Component>) p -> new Label(String.valueOf(p.age())))
+        .variable("byName", Comparator.comparing(Person::name))
+        .loadUi();
+```
+
+Use `ExtrasXml.register(registry)` to add the parsers to an existing `XmlParserRegistry`.
+
 ## Demos
 
-Demo applications for all components are located in `src/demo`:
+Demo applications for all components are located in `src/demo`, the XML demos in `rivet-extras-xml/src/demo`:
 
 A demo is started by running the `main` method of its class.
 
