@@ -37,13 +37,13 @@ record TableRowLayout(Table<?> table) implements Layout {
         final float layoutWidth = this.table.layoutWidth();
         // The minimum widths would make wrapping cells very tall, before the first layout the cells are measured unconstrained
         final float[] cellWidths = layoutWidth > 0 ? this.table.columnWidths(layoutWidth) : null;
-        final Padding padding = this.table.cellPadding().value();
+        final Padding padding = this.table.cellPadding().get();
         float width = 0;
         float height = 0;
         int column = 0;
         for (final Component component : components) {
             final float cellWidth = cellWidths == null ? Float.MAX_VALUE : cellWidths[column] - padding.horizontal();
-            final Size idealSize = component.computeIdealSize(new Size(cellWidth, constraints.height()));
+            final Size idealSize = component.idealSize(new Size(cellWidth, constraints.height()));
             height = Math.max(height, this.heightOf(component, idealSize));
             width += widths[column];
             column++;
@@ -54,7 +54,7 @@ record TableRowLayout(Table<?> table) implements Layout {
     @Override
     public void layoutComponents(final Size containerSize, final Collection<Component> components, final BiConsumer<Component, Rectangle> setBounds) {
         final float[] widths = this.table.columnWidths(containerSize.width());
-        final Padding padding = this.table.cellPadding().value();
+        final Padding padding = this.table.cellPadding().get();
         float x = 0;
         int column = 0;
         for (final Component component : components) {

@@ -97,7 +97,7 @@ final class TableHeader<E> extends Container {
             final int handle = this.handleAt(event.x(), widths);
             if (handle >= 0) {
                 final long now = System.currentTimeMillis();
-                if (handle == this.lastHandleClickColumn && now - this.lastHandleClick < this.table.doubleClickTime().value()) {
+                if (handle == this.lastHandleClickColumn && now - this.lastHandleClick < this.table.doubleClickTime().get()) {
                     this.table.autoSizeColumn(this.table.columns().get(handle));
                     this.lastHandleClickColumn = -1;
                 } else {
@@ -145,18 +145,18 @@ final class TableHeader<E> extends Container {
     @Override
     protected void renderInternal(final Renderer renderer, final Size size, final Rectangle visibleArea) {
         final float[] widths = this.table.columnWidths(size.width());
-        renderer.fillRect(0, 0, size.width(), size.height(), this.table.headerBackgroundColor().value());
+        renderer.fillRect(0, 0, size.width(), size.height(), this.table.headerBackgroundColor().get());
         if (this.resizingColumn < 0 && this.hoveredColumn >= 0 && this.table.columns().get(this.hoveredColumn).sortable()) {
-            renderer.fillRect(this.columnX(this.hoveredColumn, widths), 0, widths[this.hoveredColumn], size.height(), this.table.headerHoverBackgroundColor().value());
+            renderer.fillRect(this.columnX(this.hoveredColumn, widths), 0, widths[this.hoveredColumn], size.height(), this.table.headerHoverBackgroundColor().get());
         }
         this.table.renderCells(renderer, this, visibleArea);
         this.table.renderGrid(renderer, size, true);
 
         final int handle = this.resizingColumn >= 0 ? this.resizingColumn : this.hoveredHandle;
         if (handle >= 0) {
-            final float handleWidth = this.table.resizeHandleWidth().value();
+            final float handleWidth = this.table.resizeHandleWidth().get();
             final float handleX = this.columnX(handle, widths) + widths[handle];
-            renderer.fillRect(handleX - handleWidth / 2F, 0, handleWidth, size.height(), this.table.resizeHandleColor().value());
+            renderer.fillRect(handleX - handleWidth / 2F, 0, handleWidth, size.height(), this.table.resizeHandleColor().get());
         }
     }
 
@@ -188,7 +188,7 @@ final class TableHeader<E> extends Container {
     }
 
     private int handleAt(final float x, final float[] widths) {
-        final float halfHandleWidth = this.table.resizeHandleWidth().value() / 2F;
+        final float halfHandleWidth = this.table.resizeHandleWidth().get() / 2F;
         float columnX = 0;
         for (int i = 0; i < widths.length; i++) {
             columnX += widths[i];

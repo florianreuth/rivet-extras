@@ -21,8 +21,8 @@ import de.florianreuth.rivetextras.piano.PianoKeyboard;
 import de.florianreuth.rivetextras.utils.NoteUtils;
 import de.florianreuth.rivetextras.xml.ExtrasXml;
 import net.lenni0451.rivet.Rivet;
+import net.lenni0451.rivet.backend.AssetLoader;
 import net.lenni0451.rivet.backend.awt.AWTApplication;
-import net.lenni0451.rivet.backend.awt.AWTAssetLoader;
 import net.lenni0451.rivet.backend.awt.text.AWTFont;
 import net.lenni0451.rivet.component.impl.Label;
 import net.lenni0451.rivet.xml.XmlUi;
@@ -32,7 +32,7 @@ import java.awt.Font;
 public class XmlPianoKeyboardDemo extends AWTApplication {
 
     public static void main(final String[] args) {
-        new XmlPianoKeyboardDemo();
+        new XmlPianoKeyboardDemo().run();
     }
 
     public XmlPianoKeyboardDemo() {
@@ -40,12 +40,12 @@ public class XmlPianoKeyboardDemo extends AWTApplication {
     }
 
     @Override
-    protected AWTFont createFont(final AWTAssetLoader assetLoader) {
+    public AWTFont createFont(final AssetLoader assetLoader) {
         return new AWTFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
     }
 
     @Override
-    protected void initRivet(final Rivet rivet) {
+    public void init(final Rivet rivet) {
         final XmlUi ui = ExtrasXml.loader().load(XmlPianoKeyboardDemo.class.getResourceAsStream("/piano_keyboard_demo.xml")).loadUi();
 
         final PianoKeyboard piano = ui.require("piano", PianoKeyboard.class);

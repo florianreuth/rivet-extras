@@ -123,11 +123,19 @@ public class Table<E> extends ParentContainer {
         for (final TableColumn<E> column : this.columns) {
             column.width().syncListener().add(width -> {
                 this.columnWidthVersion++;
-                this.requestLayoutRecalculation();
+                this.invalidateCellLayouts();
             });
         }
-        this.cellPadding.changeListener().add(padding -> this.requestLayoutRecalculation());
-        this.minColumnWidth.changeListener().add(width -> this.requestLayoutRecalculation());
+        this.cellPadding.changeListener().add(padding -> this.invalidateCellLayouts());
+        this.minColumnWidth.changeListener().add(width -> this.invalidateCellLayouts());
+    }
+
+    /**
+     * Invalidates the header and rows too, their cached layouts depend on the column widths and padding of the table.
+     */
+    private void invalidateCellLayouts() {
+        this.invalidateLayoutTree();
+        this.invalidateLayout();
     }
 
     public final List<TableColumn<E>> columns() {
@@ -228,7 +236,7 @@ public class Table<E> extends ParentContainer {
         for (final Component row : this.rows.children()) {
             width = Math.max(width, idealWidth(((TableRow<?>) row).children().get(index)));
         }
-        this.resizeColumn(index, this.columnWidths(this.headerWidth), width + this.cellPadding.value().horizontal());
+        this.resizeColumn(index, this.columnWidths(this.headerWidth), width + this.cellPadding.get().horizontal());
         return this;
     }
 
@@ -259,7 +267,7 @@ public class Table<E> extends ParentContainer {
     }
 
     private float minColumnWidth(final TableColumn<E> column) {
-        return column.minWidth() < 0 ? this.minColumnWidth.value() : column.minWidth();
+        return column.minWidth() < 0 ? this.minColumnWidth.get() : column.minWidth();
     }
 
     /**
@@ -354,7 +362,7 @@ public class Table<E> extends ParentContainer {
     final float[] columnWidths(final float availableWidth) {
         // Read before the fractions, a width change during the calculation then invalidates the result
         final int version = this.columnWidthVersion;
-        final float defaultMinWidth = this.minColumnWidth.value();
+        final float defaultMinWidth = this.minColumnWidth.get();
         final ColumnWidths cache = this.columnWidthCache;
         if (cache != null && cache.version() == version && cache.availableWidth() == availableWidth && cache.defaultMinWidth() == defaultMinWidth) {
             return cache.widths();
@@ -397,12 +405,12 @@ public class Table<E> extends ParentContainer {
     }
 
     final void renderGrid(final Renderer renderer, final Size size, final boolean bottomLine) {
-        final float gridWidth = this.gridWidth.value();
+        final float gridWidth = this.gridWidth.get();
         if (gridWidth <= 0) {
             return;
         }
 
-        final Color color = this.gridColor.value();
+        final Color color = this.gridColor.get();
         float x = 0;
         for (final float width : this.columnWidths(size.width())) {
             x += width;
@@ -452,9 +460,9 @@ public class Table<E> extends ParentContainer {
     }
 
     @Override
-    public Size computeIdealSize(final Size constraints) {
-        final Size headerSize = this.header.computeIdealSize(constraints).clamp(this.header);
-        final Size bodySize = this.body.computeIdealSize(constraints.minus(0, headerSize.height())).clamp(this.body);
+    protected Size idealSizeInternal(final Size constraints) {
+        final Size headerSize = this.header.idealSize(constraints).clamp(this.header);
+        final Size bodySize = this.body.idealSize(constraints.minus(0, headerSize.height())).clamp(this.body);
         // The rows only report their minimum widths so they never overflow the body, parents sizing to the ideal width need the width the content fits into
         final float[] fractions = this.columnFractions();
         float fitWidth = this.fitWidth(this.header, fractions);
@@ -465,7 +473,7 @@ public class Table<E> extends ParentContainer {
     }
 
     private float fitWidth(final Container row, final float[] fractions) {
-        final float horizontalPadding = this.cellPadding.value().horizontal();
+        final float horizontalPadding = this.cellPadding.get().horizontal();
         float fitWidth = 0;
         final List<Component> cells = row.children();
         for (int i = 0; i < cells.size(); i++) {
@@ -477,14 +485,18 @@ public class Table<E> extends ParentContainer {
     }
 
     @Override
-    public void computeLayout(final Size size) {
+    protected void layoutInternal(final Size size) {
         // Has to be set first, the row heights are measured with the column widths of this width
-        this.layoutWidth = size.width();
-        this.headerHeight = Math.min(size.height(), this.header.computeIdealSize(size).clamp(this.header).height());
-        this.body.computeLayout(new Size(size.width(), size.height() - this.headerHeight));
+        if (size.width() != this.layoutWidth) {
+            this.layoutWidth = size.width();
+            // The body is measured with unbounded constraints, cached row heights would not notice the width change
+            this.invalidateLayoutTree();
+        }
+        this.headerHeight = Math.min(size.height(), this.header.idealSize(size).clamp(this.header).height());
+        this.body.layout(new Size(size.width(), size.height() - this.headerHeight));
         // The header has to match the row width so the columns line up
         this.headerWidth = this.body.childBounds(this.rows).width();
-        this.header.computeLayout(new Size(this.headerWidth, this.headerHeight));
+        this.header.layout(new Size(this.headerWidth, this.headerHeight));
     }
 
     @Override
@@ -557,7 +569,7 @@ public class Table<E> extends ParentContainer {
     }
 
     private static float idealWidth(final Component component) {
-        return component.computeIdealSize(Size.INFINITE).clamp(component).width();
+        return component.idealSize(Size.INFINITE).clamp(component).width();
     }
 
     private static <E> boolean isSame(final List<E> a, final List<E> b) {

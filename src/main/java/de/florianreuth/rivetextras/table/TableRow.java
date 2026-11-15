@@ -99,11 +99,11 @@ final class TableRow<E> extends Container {
     protected void renderInternal(final Renderer renderer, final Size size, final Rectangle visibleArea) {
         final Color background;
         if (this.hovered) {
-            background = this.table.rowHoverBackgroundColor().value();
+            background = this.table.rowHoverBackgroundColor().get();
         } else if (this.table.viewIndex(this.item) % 2 == 1) {
-            background = this.table.rowAlternateBackgroundColor().value();
+            background = this.table.rowAlternateBackgroundColor().get();
         } else {
-            background = this.table.rowBackgroundColor().value();
+            background = this.table.rowBackgroundColor().get();
         }
         renderer.fillRect(0, 0, size.width(), size.height(), background);
         this.table.renderCells(renderer, this, visibleArea);

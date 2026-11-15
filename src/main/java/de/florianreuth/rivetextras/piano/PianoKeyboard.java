@@ -127,7 +127,7 @@ public class PianoKeyboard extends Component {
         this.pressedNotes = new boolean[lastNote - firstNote + 1];
         for (int note = firstNote; note <= lastNote; note++) {
             final int key = note;
-            this.pressProgress.add(new Transition<>(this, () -> this.isPressed(key) ? 1F : 0F, this.pressAnimation::value, Interpolator.FLOAT));
+            this.pressProgress.add(new Transition<>(this, () -> this.isPressed(key) ? 1F : 0F, this.pressAnimation::get, Interpolator.FLOAT));
         }
     }
 
@@ -281,21 +281,21 @@ public class PianoKeyboard extends Component {
     @Override
     protected void renderInternal(final Renderer renderer, final Size size, final Rectangle visibleArea) {
         final float whiteWidth = size.width() / this.whiteKeyCount;
-        final float blackWidth = whiteWidth * this.blackKeyWidthRatio.value();
-        final float blackHeight = size.height() * this.blackKeyHeightRatio.value();
-        final float pressDepth = size.height() * this.pressDepthRatio.value();
-        final float whiteFaceHeight = size.height() * this.faceHeightRatio.value();
-        final float blackFaceHeight = blackHeight * this.faceHeightRatio.value();
-        final float cornerRadius = this.cornerRadius.value();
-        final float separatorWidth = this.separatorWidth.value();
-        final float faceShade = this.faceShade.value();
-        final Color shadowColor = this.shadowColor.value();
-        final Color whiteKeyColor = this.whiteKeyColor.value();
-        final Color whiteKeyHoverColor = this.whiteKeyHoverColor.value();
-        final Color whiteKeyPressedColor = this.whiteKeyPressedColor.value();
-        final Color blackKeyColor = this.blackKeyColor.value();
-        final Color blackKeyHoverColor = this.blackKeyHoverColor.value();
-        final Color blackKeyPressedColor = this.blackKeyPressedColor.value();
+        final float blackWidth = whiteWidth * this.blackKeyWidthRatio.get();
+        final float blackHeight = size.height() * this.blackKeyHeightRatio.get();
+        final float pressDepth = size.height() * this.pressDepthRatio.get();
+        final float whiteFaceHeight = size.height() * this.faceHeightRatio.get();
+        final float blackFaceHeight = blackHeight * this.faceHeightRatio.get();
+        final float cornerRadius = this.cornerRadius.get();
+        final float separatorWidth = this.separatorWidth.get();
+        final float faceShade = this.faceShade.get();
+        final Color shadowColor = this.shadowColor.get();
+        final Color whiteKeyColor = this.whiteKeyColor.get();
+        final Color whiteKeyHoverColor = this.whiteKeyHoverColor.get();
+        final Color whiteKeyPressedColor = this.whiteKeyPressedColor.get();
+        final Color blackKeyColor = this.blackKeyColor.get();
+        final Color blackKeyHoverColor = this.blackKeyHoverColor.get();
+        final Color blackKeyPressedColor = this.blackKeyPressedColor.get();
         final boolean showLabels = this.showLabels.get();
         if (showLabels) {
             this.updateLabelStyle();
@@ -322,7 +322,7 @@ public class PianoKeyboard extends Component {
         }
         // Drawn after all white keys, a pressed key would otherwise cover half of its neighbor's separator
         if (separatorWidth > 0) {
-            final Color separatorColor = this.separatorColor.value();
+            final Color separatorColor = this.separatorColor.get();
             for (int i = 1; i < this.whiteKeyCount; i++) {
                 renderer.fillRect(i * whiteWidth - separatorWidth / 2F, 0, separatorWidth, size.height(), separatorColor);
             }
@@ -376,7 +376,7 @@ public class PianoKeyboard extends Component {
     }
 
     private void updateLabelStyle() {
-        final LabelStyle style = new LabelStyle(this.rivet().backend().font(), this.labelScale.value(), this.blackKeyLabelScale.value(), this.labelColor.value(), this.blackKeyLabelColor.value(), this.pressedLabelColor.value());
+        final LabelStyle style = new LabelStyle(this.rivet().backend().font(), this.labelScale.get(), this.blackKeyLabelScale.get(), this.labelColor.get(), this.blackKeyLabelColor.get(), this.pressedLabelColor.get());
         if (style.equals(this.labelStyle)) {
             return;
         }
@@ -388,8 +388,8 @@ public class PianoKeyboard extends Component {
     }
 
     @Override
-    public Size computeIdealSize(final Size constraints) {
-        return new Size(this.whiteKeyCount * this.whiteKeyWidth.value(), this.keyHeight.value());
+    protected Size idealSizeInternal(final Size constraints) {
+        return new Size(this.whiteKeyCount * this.whiteKeyWidth.get(), this.keyHeight.get());
     }
 
     /**
@@ -401,8 +401,8 @@ public class PianoKeyboard extends Component {
         }
 
         final float whiteWidth = size.width() / this.whiteKeyCount;
-        if (y < size.height() * this.blackKeyHeightRatio.value()) {
-            final float halfBlackWidth = whiteWidth * this.blackKeyWidthRatio.value() / 2F;
+        if (y < size.height() * this.blackKeyHeightRatio.get()) {
+            final float halfBlackWidth = whiteWidth * this.blackKeyWidthRatio.get() / 2F;
             for (int note = this.firstNote; note <= this.lastNote; note++) {
                 if (isBlackKey(note) && Math.abs(x - this.whiteIndex(note) * whiteWidth) < halfBlackWidth) {
                     return note;

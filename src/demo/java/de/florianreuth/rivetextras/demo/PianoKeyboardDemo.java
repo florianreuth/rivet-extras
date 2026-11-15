@@ -20,8 +20,8 @@ package de.florianreuth.rivetextras.demo;
 import de.florianreuth.rivetextras.piano.PianoKeyboard;
 import de.florianreuth.rivetextras.utils.NoteUtils;
 import net.lenni0451.rivet.Rivet;
+import net.lenni0451.rivet.backend.AssetLoader;
 import net.lenni0451.rivet.backend.awt.AWTApplication;
-import net.lenni0451.rivet.backend.awt.AWTAssetLoader;
 import net.lenni0451.rivet.backend.awt.text.AWTFont;
 import net.lenni0451.rivet.component.container.Button;
 import net.lenni0451.rivet.component.container.Container;
@@ -47,7 +47,7 @@ public class PianoKeyboardDemo extends AWTApplication {
     private static final int NOTE_DURATION = 300;
 
     public static void main(final String[] args) {
-        new PianoKeyboardDemo();
+        new PianoKeyboardDemo().run();
     }
 
     public PianoKeyboardDemo() {
@@ -55,13 +55,12 @@ public class PianoKeyboardDemo extends AWTApplication {
     }
 
     @Override
-    protected AWTFont createFont(final AWTAssetLoader assetLoader) {
+    public AWTFont createFont(final AssetLoader assetLoader) {
         return new AWTFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
     }
 
     @Override
-    protected void initRivet(final Rivet rivet) {
-        // Called from the super constructor, instance fields of this class are not initialized yet
+    public void init(final Rivet rivet) {
         final PianoKeyboard piano = new PianoKeyboard(48, 84);
         final Label status = new Label("");
 
