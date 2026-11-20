@@ -81,13 +81,17 @@ public class MenuBar extends ParentContainer {
             return menu;
         });
         this.openMenu.syncListener().add(this::onOpenMenuChanged);
-        // The popup is positioned in its layout, which is cached until the popup itself is invalidated
-        this.positionUpdateListener().add(new PositionUpdateListener(() -> this.popup != null, bounds -> {
-            final MenuPopup popup = this.popup;
-            if (popup != null) {
-                popup.invalidateLayout();
-            }
-        }));
+        this.positionUpdateListener().add(new PositionUpdateListener(() -> this.popup != null, bounds -> this.invalidatePopupLayout()));
+        this.popupPadding.changeListener().add(padding -> this.invalidatePopupLayout());
+        this.minPopupWidth.changeListener().add(width -> this.invalidatePopupLayout());
+    }
+
+    // The popup is positioned in its layout, which is cached until the popup itself is invalidated
+    private void invalidatePopupLayout() {
+        final MenuPopup popup = this.popup;
+        if (popup != null) {
+            popup.invalidateLayout();
+        }
     }
 
     /**
@@ -288,6 +292,8 @@ public class MenuBar extends ParentContainer {
         for (final Menu menu : menus) {
             menu.title().layout(this.childBounds(menu.title()).size());
         }
+        // A title can move without the menu bar moving, the position listener would not notice
+        this.invalidatePopupLayout();
     }
 
     @Override
