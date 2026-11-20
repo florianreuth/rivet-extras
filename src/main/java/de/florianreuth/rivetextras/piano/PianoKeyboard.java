@@ -62,6 +62,8 @@ public class PianoKeyboard extends Component {
     private final int whiteKeyCount;
     // Indexed by note - firstNote
     private final boolean[] pressedNotes;
+    // Indexed by note - firstNote, null uses the theme color, kept after release so the release animation fades from it
+    private final Color[] pressedColors;
     private final ListenerList<IntConsumer> notePressListener = new ListenerList<>();
     private final ListenerList<IntConsumer> noteReleaseListener = new ListenerList<>();
     private final BooleanProperty showLabels = new BooleanProperty(true);
@@ -128,6 +130,7 @@ public class PianoKeyboard extends Component {
         this.lastNote = lastNote;
         this.whiteKeyCount = this.whiteIndex(lastNote) + 1;
         this.pressedNotes = new boolean[lastNote - firstNote + 1];
+        this.pressedColors = new Color[lastNote - firstNote + 1];
         for (int note = firstNote; note <= lastNote; note++) {
             final int key = note;
             this.pressProgress.add(new Transition<>(this, () -> this.isPressed(key) ? 1F : 0F, this.pressAnimation::get, Interpolator.FLOAT));
@@ -201,7 +204,18 @@ public class PianoKeyboard extends Component {
      * @throws IllegalArgumentException if the note is outside the keyboard range
      */
     public final PianoKeyboard press(final int note) {
+        return this.press(note, null);
+    }
+
+    /**
+     * Presses the key with a custom pressed color, pressing an already pressed key only updates its color.
+     *
+     * @param color the pressed color of this key, or null for the themed pressed color
+     * @throws IllegalArgumentException if the note is outside the keyboard range
+     */
+    public final PianoKeyboard press(final int note, final Color color) {
         this.checkInRange(note);
+        this.pressedColors[note - this.firstNote] = color;
         if (!this.pressedNotes[note - this.firstNote]) {
             this.pressedNotes[note - this.firstNote] = true;
             this.notePressListener.call(listener -> listener.accept(note));
@@ -362,7 +376,9 @@ public class PianoKeyboard extends Component {
         return this.pressProgress.get(note - this.firstNote).value();
     }
 
-    private Color keyColor(final int note, final float progress, final Color color, final Color hoverColor, final Color pressedColor) {
+    private Color keyColor(final int note, final float progress, final Color color, final Color hoverColor, final Color themePressedColor) {
+        final Color customPressedColor = this.pressedColors[note - this.firstNote];
+        final Color pressedColor = customPressedColor != null ? customPressedColor : themePressedColor;
         if (progress >= 1) {
             return pressedColor;
         }
@@ -533,7 +549,8 @@ public class PianoKeyboard extends Component {
         return this.pressedLabelColor;
     }
 
-    private record LabelStyle(Font font, float whiteScale, float blackScale, Color whiteColor, Color blackColor, Color pressedColor, NoteNotation notation) {
+    private record LabelStyle(Font font, float whiteScale, float blackScale, Color whiteColor, Color blackColor,
+                              Color pressedColor, NoteNotation notation) {
     }
 
 }
