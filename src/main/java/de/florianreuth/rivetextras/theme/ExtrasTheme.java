@@ -115,4 +115,24 @@ public final class ExtrasTheme {
         public static final ThemeKey<Color> PRESSED_LABEL_COLOR = Theme.registerVisual("piano_keyboard.pressed_label_color", Color.class, r -> Color.WHITE);
     }
 
+    public static class MenuBar {
+        // Geometry & Layout
+        public static final ThemeKey<Padding> TITLE_PADDING = Theme.register("menu_bar.title_padding", Padding.class, r -> {
+            final float textHeight = r.backend().font().height();
+            return new Padding(roundMin(textHeight / 2F, 0), roundMin(textHeight / 5F, 0));
+        });
+        public static final ThemeKey<Padding> POPUP_PADDING = Theme.register("menu_bar.popup_padding", Padding.class, r -> new Padding(roundMin(r.backend().font().height() / 6F, 0)));
+        public static final ThemeKey<Float> MIN_POPUP_WIDTH = Theme.register("menu_bar.min_popup_width", Float.class, r -> roundMin(r.backend().font().height() * 8F, 1));
+        public static final ThemeKey<Float> OUTLINE_WIDTH = Theme.register("menu_bar.outline_width", Float.class, r -> roundMin(r.backend().font().height() / 25F, 1));
+
+        // Colors - Bar
+        public static final ThemeKey<Color> BACKGROUND_COLOR = Theme.register("menu_bar.background_color", Color.class, r -> Color.fromRGB(45, 45, 48));
+        public static final ThemeKey<Color> TITLE_HOVER_BACKGROUND_COLOR = Theme.register("menu_bar.title_hover_background_color", Color.class, r -> Color.fromRGB(65, 65, 70));
+        public static final ThemeKey<Color> TITLE_OPEN_BACKGROUND_COLOR = Theme.register("menu_bar.title_open_background_color", Color.class, r -> Color.fromRGB(0, 122, 204));
+
+        // Colors - Popup
+        public static final ThemeKey<Color> POPUP_BACKGROUND_COLOR = Theme.register("menu_bar.popup_background_color", Color.class, r -> Color.fromRGB(37, 37, 38));
+        public static final ThemeKey<Color> POPUP_OUTLINE_COLOR = Theme.register("menu_bar.popup_outline_color", Color.class, r -> Color.fromRGB(65, 65, 70));
+    }
+
 }

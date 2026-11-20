@@ -17,10 +17,13 @@
 
 package de.florianreuth.rivetextras.xml;
 
+import de.florianreuth.rivetextras.menu.MenuBar;
 import de.florianreuth.rivetextras.piano.PianoKeyboard;
 import de.florianreuth.rivetextras.table.Table;
 import de.florianreuth.rivetextras.table.TableColumn;
 import de.florianreuth.rivetextras.theme.ExtrasTheme;
+import de.florianreuth.rivetextras.xml.parser.MenuBarParser;
+import de.florianreuth.rivetextras.xml.parser.MenuParser;
 import de.florianreuth.rivetextras.xml.parser.PianoKeyboardParser;
 import de.florianreuth.rivetextras.xml.parser.TableColumnParser;
 import de.florianreuth.rivetextras.xml.parser.TableParser;
@@ -45,6 +48,8 @@ public final class ExtrasXml {
         registry.register("PianoKeyboard", PianoKeyboard.class, new PianoKeyboardParser());
         registry.register("Table", Table.class, new TableParser());
         registry.register("TableColumn", TableColumn.class, new TableColumnParser());
+        registry.register("MenuBar", MenuBar.class, new MenuBarParser());
+        registry.register("Menu", MenuBar.Menu.class, new MenuParser());
         return registry;
     }
 

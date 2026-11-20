@@ -47,6 +47,27 @@ piano.press(60).press(64).press(67); // C major chord
 rivet.root().add(piano);
 ```
 
+### Menu Bar
+
+![Menu Bar](.github/images/menu_bar.png)
+
+A bar of menus, clicking a title opens its menu below it. While a menu is open, hovering another title switches to it.
+Title and content of a menu can be any component. Escape or a click outside closes the menu, the content closes it by calling `MenuBar#close`.
+
+```java
+MenuBar menuBar = new MenuBar();
+Container file = new Container(new VerticalListLayout(0, true));
+file.add(new Button("Open...", () -> {
+    menuBar.close();
+    open();
+}));
+file.add(new Separator());
+file.add(new Checkbox("Auto save"));
+
+menuBar.add("File", file);
+rivet.root().add(menuBar);
+```
+
 ## XML
 
 The `rivet-extras-xml` module adds the components to the XML loader of rivet.
@@ -75,6 +96,21 @@ XmlUi ui = ExtrasXml.loader().load(xml)
         .variable("ageCell", (Function<Person, Component>) p -> new Label(String.valueOf(p.age())))
         .variable("byName", Comparator.comparing(Person::name))
         .loadUi();
+```
+
+A menu takes its title as attribute or as first child and its content as last child:
+
+```xml
+<MenuBar id="menuBar">
+    <Menu title="File">
+        <Container>
+            <VerticalListLayout gap="0" fullWidth="true"/>
+            <Button id="open" text="Open..."/>
+            <Separator/>
+            <Checkbox text="Auto save"/>
+        </Container>
+    </Menu>
+</MenuBar>
 ```
 
 Use `ExtrasXml.register(registry)` to add the parsers to an existing `XmlParserRegistry`.

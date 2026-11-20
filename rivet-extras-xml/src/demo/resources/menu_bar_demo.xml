@@ -1,0 +1,44 @@
+<RivetUi>
+    <Root>
+        <Container>
+            <DockLayout/>
+            <MenuBar id="menuBar">
+                <DockPosition position="TOP"/>
+                <Menu title="File">
+                    <Container>
+                        <VerticalListLayout gap="0" fullWidth="true"/>
+                        <Button id="new">
+                            <Label text="New" horizontalOrigin="LOGICAL_LEFT"/>
+                        </Button>
+                        <Button id="open">
+                            <Label text="Open..." horizontalOrigin="LOGICAL_LEFT"/>
+                        </Button>
+                        <Separator/>
+                        <Button id="exit">
+                            <Label text="Exit" horizontalOrigin="LOGICAL_LEFT"/>
+                        </Button>
+                    </Container>
+                </Menu>
+                <Menu title="Edit">
+                    <Container>
+                        <VerticalListLayout gap="0" fullWidth="true"/>
+                        <Button id="undo">
+                            <Label text="Undo" horizontalOrigin="LOGICAL_LEFT"/>
+                        </Button>
+                        <Separator/>
+                        <Checkbox text="Word wrap"/>
+                    </Container>
+                </Menu>
+            </MenuBar>
+            <PaddedContainer padding="10">
+                <DockPosition position="CENTER"/>
+                <Container>
+                    <DockLayout/>
+                    <Label id="status" text="Last action: none" horizontalOrigin="LOGICAL_LEFT">
+                        <DockPosition position="BOTTOM"/>
+                    </Label>
+                </Container>
+            </PaddedContainer>
+        </Container>
+    </Root>
+</RivetUi>
