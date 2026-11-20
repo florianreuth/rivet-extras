@@ -17,11 +17,13 @@
 
 package de.florianreuth.rivetextras.xml;
 
+import de.florianreuth.rivetextras.hex.HexEditor;
 import de.florianreuth.rivetextras.menu.MenuBar;
 import de.florianreuth.rivetextras.piano.PianoKeyboard;
 import de.florianreuth.rivetextras.table.Table;
 import de.florianreuth.rivetextras.table.TableColumn;
 import de.florianreuth.rivetextras.theme.ExtrasTheme;
+import de.florianreuth.rivetextras.xml.parser.HexEditorParser;
 import de.florianreuth.rivetextras.xml.parser.MenuBarParser;
 import de.florianreuth.rivetextras.xml.parser.MenuParser;
 import de.florianreuth.rivetextras.xml.parser.PianoKeyboardParser;
@@ -50,6 +52,7 @@ public final class ExtrasXml {
         registry.register("TableColumn", TableColumn.class, new TableColumnParser());
         registry.register("MenuBar", MenuBar.class, new MenuBarParser());
         registry.register("Menu", MenuBar.Menu.class, new MenuParser());
+        registry.register("HexEditor", HexEditor.class, new HexEditorParser());
         return registry;
     }
 

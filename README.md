@@ -68,6 +68,22 @@ menuBar.add("File", file);
 rivet.root().add(menuBar);
 ```
 
+### Hex Editor
+
+![Hex Editor](.github/images/hex_editor.png)
+
+Shows bytes as hex values and ASCII characters side by side, with an address column on the left. The length of the data is fixed, typing overwrites bytes.
+Typing hex digits edits the hex column nibble by nibble, Tab switches to the ASCII column. Shift extends the selection, Ctrl+C copies it and Ctrl+V pastes over it.
+The editor does not scroll by itself, wrap it in a `ScrollContainer`.
+
+```java
+HexEditor editor = new HexEditor(bytes)
+        .baseAddress(0x7FF6_A000L)
+        .bytesPerRow(16);
+editor.byteChangeListener().add((offset, oldValue, newValue) -> memory.write(offset, newValue));
+rivet.root().add(new ScrollContainer(editor));
+```
+
 ## XML
 
 The `rivet-extras-xml` module adds the components to the XML loader of rivet.

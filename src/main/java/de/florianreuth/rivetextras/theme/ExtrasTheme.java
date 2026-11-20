@@ -136,4 +136,27 @@ public final class ExtrasTheme {
         public static final ThemeKey<Color> POPUP_OUTLINE_COLOR = Theme.registerVisual("menu_bar.popup_outline_color", Color.class, r -> Color.fromRGB(65, 65, 70));
     }
 
+    public static class HexEditor {
+        // Geometry & Layout - a group size of 0 or less disables the gap between byte groups
+        public static final ThemeKey<Padding> PADDING = Theme.register("hex_editor.padding", Padding.class, r -> new Padding(roundMin(r.backend().font().height() / 5F, 0)));
+        public static final ThemeKey<Float> COLUMN_GAP = Theme.register("hex_editor.column_gap", Float.class, r -> roundMin(r.backend().font().height(), 0));
+        public static final ThemeKey<Integer> GROUP_SIZE = Theme.register("hex_editor.group_size", Integer.class, r -> 8);
+        public static final ThemeKey<Float> SEPARATOR_WIDTH = Theme.registerVisual("hex_editor.separator_width", Float.class, r -> roundMin(r.backend().font().height() / 25F, 1));
+
+        // Colors - Background
+        public static final ThemeKey<Color> BACKGROUND_COLOR = Theme.registerVisual("hex_editor.background_color", Color.class, r -> Color.fromRGB(30, 30, 30));
+        public static final ThemeKey<Color> ADDRESS_BACKGROUND_COLOR = Theme.registerVisual("hex_editor.address_background_color", Color.class, r -> Color.fromRGB(37, 37, 38));
+        public static final ThemeKey<Color> SEPARATOR_COLOR = Theme.registerVisual("hex_editor.separator_color", Color.class, r -> Color.fromRGB(65, 65, 70));
+
+        // Colors - Text
+        public static final ThemeKey<Color> ADDRESS_COLOR = Theme.registerVisual("hex_editor.address_color", Color.class, r -> Color.fromRGB(110, 110, 115));
+        public static final ThemeKey<Color> TEXT_COLOR = Theme.registerVisual("hex_editor.text_color", Color.class, r -> Color.fromRGB(220, 220, 220));
+        public static final ThemeKey<Color> ZERO_BYTE_COLOR = Theme.registerVisual("hex_editor.zero_byte_color", Color.class, r -> Color.fromRGB(110, 110, 115));
+        public static final ThemeKey<Color> NON_PRINTABLE_COLOR = Theme.registerVisual("hex_editor.non_printable_color", Color.class, r -> Color.fromRGB(110, 110, 115));
+
+        // Colors - Cursor & Selection
+        public static final ThemeKey<Color> CURSOR_COLOR = Theme.registerVisual("hex_editor.cursor_color", Color.class, r -> Color.fromRGB(0, 122, 204));
+        public static final ThemeKey<Color> SELECTION_COLOR = Theme.registerVisual("hex_editor.selection_color", Color.class, r -> Color.fromRGBA(0, 122, 204, 90));
+    }
+
 }

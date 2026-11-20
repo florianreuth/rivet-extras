@@ -1,0 +1,16 @@
+<RivetUi>
+    <Root>
+        <PaddedContainer padding="10">
+            <Container>
+                <DockLayout gap="5"/>
+                <Label id="status" text="Click a byte and type hex digits" horizontalOrigin="LOGICAL_LEFT">
+                    <DockPosition position="BOTTOM"/>
+                </Label>
+                <ScrollContainer>
+                    <DockPosition position="CENTER"/>
+                    <HexEditor id="editor" data="${data}" bytesPerRow="8" baseAddress="4096" cursorColor="#E91E63"/>
+                </ScrollContainer>
+            </Container>
+        </PaddedContainer>
+    </Root>
+</RivetUi>
