@@ -18,6 +18,7 @@
 package de.florianreuth.rivetextras.xml.parser;
 
 import de.florianreuth.rivetextras.piano.PianoKeyboard;
+import de.florianreuth.rivetextras.utils.NoteNotation;
 import net.lenni0451.commons.color.Color;
 import net.lenni0451.rivet.animation.AnimationConfig;
 import net.lenni0451.rivet.xml.parser.XmlParser;
@@ -42,6 +43,7 @@ public class PianoKeyboardParser implements XmlParser<PianoKeyboard> {
                 }
             })
             .attribute("showLabels", boolean.class, PianoKeyboard::showLabels)
+            .attribute("labelNotation", NoteNotation.class, PianoKeyboard::labelNotation)
             .themeOption("whiteKeyWidth", Float.class, PianoKeyboard::whiteKeyWidth)
             .themeOption("keyHeight", Float.class, PianoKeyboard::keyHeight)
             .themeOption("blackKeyWidthRatio", Float.class, PianoKeyboard::blackKeyWidthRatio)

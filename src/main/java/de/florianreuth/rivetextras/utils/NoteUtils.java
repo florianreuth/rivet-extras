@@ -22,7 +22,6 @@ package de.florianreuth.rivetextras.utils;
  */
 public final class NoteUtils {
 
-    private static final String[] NOTE_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     // Number of white keys below each note of an octave, starting at C
     private static final int[] WHITE_KEYS_BELOW = {0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6};
     // Distance of each white key of an octave from C
@@ -42,7 +41,7 @@ public final class NoteUtils {
      * @return the scientific pitch name, 60 is C4
      */
     public static String noteName(final int note) {
-        return NOTE_NAMES[Math.floorMod(note, 12)] + (Math.floorDiv(note, 12) - 1);
+        return NoteNotation.SCIENTIFIC.noteName(note);
     }
 
     /**

@@ -18,6 +18,7 @@
 package de.florianreuth.rivetextras.piano;
 
 import de.florianreuth.rivetextras.theme.ExtrasTheme;
+import de.florianreuth.rivetextras.utils.NoteNotation;
 import net.lenni0451.commons.color.Color;
 import net.lenni0451.rivet.animation.AnimationConfig;
 import net.lenni0451.rivet.animation.Interpolator;
@@ -33,6 +34,7 @@ import net.lenni0451.rivet.input.mouse.MouseMoveEvent;
 import net.lenni0451.rivet.math.Rectangle;
 import net.lenni0451.rivet.math.Size;
 import net.lenni0451.rivet.property.BooleanProperty;
+import net.lenni0451.rivet.property.ObjectProperty;
 import net.lenni0451.rivet.text.model.TextOrigin;
 import net.lenni0451.rivet.theme.ThemeOption;
 
@@ -63,6 +65,7 @@ public class PianoKeyboard extends Component {
     private final ListenerList<IntConsumer> notePressListener = new ListenerList<>();
     private final ListenerList<IntConsumer> noteReleaseListener = new ListenerList<>();
     private final BooleanProperty showLabels = new BooleanProperty(true);
+    private final ObjectProperty<NoteNotation> labelNotation = new ObjectProperty<>(NoteNotation.SCIENTIFIC);
 
     private final ThemeOption<Float> whiteKeyWidth = new ThemeOption<>(this, ExtrasTheme.PianoKeyboard.WHITE_KEY_WIDTH);
     private final ThemeOption<Float> keyHeight = new ThemeOption<>(this, ExtrasTheme.PianoKeyboard.KEY_HEIGHT);
@@ -179,6 +182,18 @@ public class PianoKeyboard extends Component {
 
     public final PianoKeyboard showLabels(final boolean showLabels) {
         this.showLabels.set(showLabels);
+        return this;
+    }
+
+    /**
+     * @return the notation of the key labels, {@link NoteNotation#SCIENTIFIC} by default
+     */
+    public final ObjectProperty<NoteNotation> labelNotation() {
+        return this.labelNotation;
+    }
+
+    public final PianoKeyboard labelNotation(final NoteNotation labelNotation) {
+        this.labelNotation.set(labelNotation);
         return this;
     }
 
@@ -367,7 +382,7 @@ public class PianoKeyboard extends Component {
         final int cacheIndex = pressed ? note + 128 : note;
         ShapedText label = this.labelCache[cacheIndex];
         if (label == null) {
-            label = font.shapeText(noteName(note), pressed ? this.labelStyle.pressedColor() : color);
+            label = font.shapeText(this.labelStyle.notation().noteName(note), pressed ? this.labelStyle.pressedColor() : color);
             this.labelCache[cacheIndex] = label;
         }
         if (label.visualBounds().width() <= maxLabelWidth) {
@@ -376,7 +391,7 @@ public class PianoKeyboard extends Component {
     }
 
     private void updateLabelStyle() {
-        final LabelStyle style = new LabelStyle(this.rivet().backend().font(), this.labelScale.get(), this.blackKeyLabelScale.get(), this.labelColor.get(), this.blackKeyLabelColor.get(), this.pressedLabelColor.get());
+        final LabelStyle style = new LabelStyle(this.rivet().backend().font(), this.labelScale.get(), this.blackKeyLabelScale.get(), this.labelColor.get(), this.blackKeyLabelColor.get(), this.pressedLabelColor.get(), this.labelNotation.get());
         if (style.equals(this.labelStyle)) {
             return;
         }
@@ -518,7 +533,7 @@ public class PianoKeyboard extends Component {
         return this.pressedLabelColor;
     }
 
-    private record LabelStyle(Font font, float whiteScale, float blackScale, Color whiteColor, Color blackColor, Color pressedColor) {
+    private record LabelStyle(Font font, float whiteScale, float blackScale, Color whiteColor, Color blackColor, Color pressedColor, NoteNotation notation) {
     }
 
 }
