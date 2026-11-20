@@ -135,8 +135,8 @@ final class MenuPopup extends ParentContainer {
         final Rectangle titleBounds = this.menuBar.titleBounds(this.menu);
         final float y = titleBounds.maxY();
         final Size idealSize = content.idealSize(size.minus(padding)).clamp(content);
-        final float width = Math.clamp(this.menuBar.minPopupWidth().get(), idealSize.width() + padding.horizontal(), size.width());
-        final float height = Math.clamp(idealSize.height() + padding.vertical(), 0, size.height() - y);
+        final float width = Math.min(Math.max(this.menuBar.minPopupWidth().get(), idealSize.width() + padding.horizontal()), size.width());
+        final float height = Math.max(0, Math.min(idealSize.height() + padding.vertical(), size.height() - y));
         // Moved left if it would leave the screen, otherwise aligned with the title
         final float x = MathUtils.clamp(titleBounds.x(), 0, Math.max(0, size.width() - width));
         this.panelBounds = new Rectangle(x, y, width, height);
