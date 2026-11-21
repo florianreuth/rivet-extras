@@ -84,6 +84,23 @@ editor.byteChangeListener().add((offset, oldValue, newValue) -> memory.write(off
 rivet.root().add(new ScrollContainer(editor));
 ```
 
+### Graph
+
+![Graph](.github/images/graph.png)
+
+A line chart of one or more series, hovering a point shows its values. Points can be added from any thread, a series with a point limit drops its oldest points, e.g. to show the latest values of live data.
+The axes fit the data unless a range is set, ticks are placed at steps of 1, 2 or 5 times a power of ten.
+
+```java
+GraphSeries cpu = new GraphSeries("CPU").maxPoints(200);
+Graph graph = new Graph()
+        .add(cpu)
+        .yRange(new Graph.Range(0, 100))
+        .yLabelFormatter(value -> (int) value + " %");
+cpu.add(time, cpuLoad);
+rivet.root().add(graph);
+```
+
 ## XML
 
 The `rivet-extras-xml` module adds the components to the XML loader of rivet.
@@ -127,6 +144,15 @@ A menu takes its title as attribute or as first child and its content as last ch
         </Container>
     </Menu>
 </MenuBar>
+```
+
+A graph takes its series as children, the points are added in code:
+
+```xml
+<Graph id="graph" yMin="-1.5" yMax="1.5">
+    <GraphSeries name="sin(x)"/>
+    <GraphSeries name="cos(x)" color="#E91E63" maxPoints="200"/>
+</Graph>
 ```
 
 Use `ExtrasXml.register(registry)` to add the parsers to an existing `XmlParserRegistry`.

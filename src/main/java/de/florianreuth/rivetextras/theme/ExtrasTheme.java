@@ -159,4 +159,38 @@ public final class ExtrasTheme {
         public static final ThemeKey<Color> SELECTION_COLOR = Theme.registerVisual("hex_editor.selection_color", Color.class, r -> Color.fromRGBA(0, 122, 204, 90));
     }
 
+    public static class Graph {
+        // Geometry & Layout - the width and height are ideal sizes, the plot stretches to fill the component
+        public static final ThemeKey<Float> WIDTH = Theme.register("graph.width", Float.class, r -> roundMin(r.backend().font().height() * 20F, 1));
+        public static final ThemeKey<Float> HEIGHT = Theme.register("graph.height", Float.class, r -> roundMin(r.backend().font().height() * 12F, 1));
+        public static final ThemeKey<Padding> PADDING = Theme.registerVisual("graph.padding", Padding.class, r -> new Padding(roundMin(r.backend().font().height() / 2F, 0)));
+        // Used by the legend and the hover tooltip
+        public static final ThemeKey<Padding> INNER_PADDING = Theme.registerVisual("graph.inner_padding", Padding.class, r -> {
+            final float textHeight = r.backend().font().height();
+            return new Padding(roundMin(textHeight / 4F, 0), roundMin(textHeight / 8F, 0));
+        });
+        public static final ThemeKey<Float> TICK_LENGTH = Theme.registerVisual("graph.tick_length", Float.class, r -> roundMin(r.backend().font().height() / 4F, 1));
+        // Minimum distance between two ticks, the steps are chosen from 1, 2 and 5 times a power of ten
+        public static final ThemeKey<Float> TICK_SPACING = Theme.registerVisual("graph.tick_spacing", Float.class, r -> roundMin(r.backend().font().height() * 3F, 1));
+        public static final ThemeKey<Float> LINE_WIDTH = Theme.registerVisual("graph.line_width", Float.class, r -> roundMin(r.backend().font().height() / 10F, 1));
+        public static final ThemeKey<Float> GRID_WIDTH = Theme.registerVisual("graph.grid_width", Float.class, r -> roundMin(r.backend().font().height() / 25F, 1));
+        public static final ThemeKey<Float> POINT_RADIUS = Theme.registerVisual("graph.point_radius", Float.class, r -> roundMin(r.backend().font().height() / 5F, 1));
+        // Maximum distance between the mouse and a point to show its tooltip
+        public static final ThemeKey<Float> HOVER_RADIUS = Theme.registerVisual("graph.hover_radius", Float.class, r -> roundMin(r.backend().font().height(), 1));
+
+        // Colors - Background & Grid
+        public static final ThemeKey<Color> BACKGROUND_COLOR = Theme.registerVisual("graph.background_color", Color.class, r -> Color.fromRGB(30, 30, 30));
+        public static final ThemeKey<Color> PLOT_BACKGROUND_COLOR = Theme.registerVisual("graph.plot_background_color", Color.class, r -> Color.fromRGB(37, 37, 38));
+        public static final ThemeKey<Color> GRID_COLOR = Theme.registerVisual("graph.grid_color", Color.class, r -> Color.fromRGB(50, 50, 55));
+        public static final ThemeKey<Color> AXIS_COLOR = Theme.registerVisual("graph.axis_color", Color.class, r -> Color.fromRGB(110, 110, 115));
+
+        // Colors - Text
+        public static final ThemeKey<Color> LABEL_COLOR = Theme.registerVisual("graph.label_color", Color.class, r -> Color.fromRGB(150, 150, 155));
+        public static final ThemeKey<Color> TEXT_COLOR = Theme.registerVisual("graph.text_color", Color.class, r -> Color.fromRGB(220, 220, 220));
+
+        // Colors - Legend & Tooltip
+        public static final ThemeKey<Color> LEGEND_BACKGROUND_COLOR = Theme.registerVisual("graph.legend_background_color", Color.class, r -> Color.fromRGBA(30, 30, 30, 200));
+        public static final ThemeKey<Color> TOOLTIP_BACKGROUND_COLOR = Theme.registerVisual("graph.tooltip_background_color", Color.class, r -> Color.fromRGB(45, 45, 48));
+    }
+
 }

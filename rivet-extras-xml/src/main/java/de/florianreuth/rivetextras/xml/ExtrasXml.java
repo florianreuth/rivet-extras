@@ -17,12 +17,16 @@
 
 package de.florianreuth.rivetextras.xml;
 
+import de.florianreuth.rivetextras.graph.Graph;
+import de.florianreuth.rivetextras.graph.GraphSeries;
 import de.florianreuth.rivetextras.hex.HexEditor;
 import de.florianreuth.rivetextras.menu.MenuBar;
 import de.florianreuth.rivetextras.piano.PianoKeyboard;
 import de.florianreuth.rivetextras.table.Table;
 import de.florianreuth.rivetextras.table.TableColumn;
 import de.florianreuth.rivetextras.theme.ExtrasTheme;
+import de.florianreuth.rivetextras.xml.parser.GraphParser;
+import de.florianreuth.rivetextras.xml.parser.GraphSeriesParser;
 import de.florianreuth.rivetextras.xml.parser.HexEditorParser;
 import de.florianreuth.rivetextras.xml.parser.MenuBarParser;
 import de.florianreuth.rivetextras.xml.parser.MenuParser;
@@ -53,6 +57,8 @@ public final class ExtrasXml {
         registry.register("MenuBar", MenuBar.class, new MenuBarParser());
         registry.register("Menu", MenuBar.Menu.class, new MenuParser());
         registry.register("HexEditor", HexEditor.class, new HexEditorParser());
+        registry.register("Graph", Graph.class, new GraphParser());
+        registry.register("GraphSeries", GraphSeries.class, new GraphSeriesParser());
         return registry;
     }
 

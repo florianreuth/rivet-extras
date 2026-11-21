@@ -1,0 +1,10 @@
+<RivetUi>
+    <Root>
+        <PaddedContainer padding="10">
+            <Graph id="graph" yMin="-1.5" yMax="1.5">
+                <GraphSeries name="sin(x)"/>
+                <GraphSeries name="cos(x)" color="#E91E63"/>
+            </Graph>
+        </PaddedContainer>
+    </Root>
+</RivetUi>
