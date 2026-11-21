@@ -104,10 +104,10 @@ public class HexEditor extends Component {
     }
 
     /**
-     * @param data the initial data, copied
+     * @param data the initial data, not copied so external changes are shown on the next frame
      */
     public HexEditor(final byte[] data) {
-        this.data = data.clone();
+        this.data = data;
         this.bytesPerRow.addValidator(bytesPerRow -> {
             if (bytesPerRow < 1) {
                 throw new IllegalArgumentException("Bytes per row must be at least 1, got " + bytesPerRow);
@@ -126,19 +126,20 @@ public class HexEditor extends Component {
     }
 
     /**
-     * @return a copy of the current data
+     * @return the backing array, edits in the editor write to it directly
      */
     public final byte[] data() {
-        return this.data.clone();
+        return this.data;
     }
 
     /**
      * Replaces the data without calling the byte change listeners, the cursor is kept if it is still inside the data.
+     * Writes to the array are shown on the next frame, but only {@link #set(int, byte)} calls the byte change listeners.
      *
-     * @param data the new data, copied
+     * @param data the new data, not copied
      */
     public final HexEditor data(final byte[] data) {
-        this.data = data.clone();
+        this.data = data;
         final int maxOffset = Math.max(0, data.length - 1);
         this.cursor = Math.min(this.cursor, maxOffset);
         this.selectionAnchor = Math.min(this.selectionAnchor, maxOffset);
@@ -639,7 +640,7 @@ public class HexEditor extends Component {
         final long highestAddress = this.baseAddress.get() + Math.max(0, length - 1);
         final int addressDigits = Math.max(MIN_ADDRESS_DIGITS, Long.toHexString(highestAddress).length());
         return new Metrics(this.digitWidth, this.charWidth, this.rivet().backend().font().height(), this.padding.get(), this.columnGap.get(),
-                this.bytesPerRow.get(), this.groupSize.get(), addressDigits);
+            this.bytesPerRow.get(), this.groupSize.get(), addressDigits);
     }
 
     @Override
@@ -720,7 +721,8 @@ public class HexEditor extends Component {
         void onByteChange(final int offset, final byte oldValue, final byte newValue);
     }
 
-    private record TextStyle(Font font, Color textColor, Color zeroByteColor, Color addressColor, Color nonPrintableColor) {
+    private record TextStyle(Font font, Color textColor, Color zeroByteColor, Color addressColor,
+                             Color nonPrintableColor) {
     }
 
     private record Hit(int offset, boolean asciiColumn, boolean lowNibble) {
