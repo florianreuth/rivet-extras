@@ -283,12 +283,14 @@ public class HexEditor extends Component {
     @Override
     protected void onFocusGainedInternal() {
         this.focused = true;
+        this.rivet().backend().textInput().start();
     }
 
     @Override
     protected void onFocusLostInternal() {
         this.focused = false;
         this.selecting = false;
+        this.rivet().backend().textInput().stop();
     }
 
     @Override
